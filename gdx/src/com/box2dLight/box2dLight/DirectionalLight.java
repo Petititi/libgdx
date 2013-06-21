@@ -65,10 +65,14 @@ public class DirectionalLight extends Light {
 		lightMesh = new Mesh(VertexDataType.VertexArray, staticLight, vertexNum, 0, new VertexAttribute(Usage.Position, 2,
 			"vertex_positions"), new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
 			new VertexAttribute(Usage.Generic, 1, "s"));
-		softShadowMesh = new Mesh(VertexDataType.VertexArray, staticLight, vertexNum, 0, new VertexAttribute(Usage.Position, 2,
-			"vertex_positions"), new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
-			new VertexAttribute(Usage.Generic, 1, "s"));
-
+		if( rayHandler.isGL20 )
+			softShadowMesh = null;
+		else
+		{
+			softShadowMesh = new Mesh(VertexDataType.VertexArray, staticLight, vertexNum, 0, new VertexAttribute(Usage.Position, 2,
+				"vertex_positions"), new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
+				new VertexAttribute(Usage.Generic, 1, "s"));
+		}
 	}
 
 	@Override
@@ -94,10 +98,8 @@ public class DirectionalLight extends Light {
 
 		if (!soft || xray) return;
 
-		nativeLight.setShadowMesh(segments, colorF, softShadowLenght, rayHandler.isGL20);
-		if (rayHandler.isGL20) {
-			softShadowMesh.setVertices(segments, 0, (rayNum * 2) * 4);
-		} else {
+		if (!rayHandler.isGL20) {
+			nativeLight.setShadowMesh(segments, colorF, softShadowLenght, false);
 			softShadowMesh.setVertices(segments, 0, (rayNum * 2) * 3);
 		}
 	}
@@ -107,9 +109,6 @@ public class DirectionalLight extends Light {
 		rayHandler.lightRenderedLastFrame++;
 		if (rayHandler.isGL20) {
 			lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_STRIP, 0, vertexNum);
-			if (soft && !xray) {
-				softShadowMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_STRIP, 0, vertexNum);
-			}
 		} else {
 			lightMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
 			if (soft && !xray) {

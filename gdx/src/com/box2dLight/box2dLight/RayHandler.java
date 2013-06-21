@@ -252,7 +252,7 @@ public class RayHandler implements Disposable {
 
 		if (shadows || blur) {
 			lightMap.frameBuffer.end();
-			lightMap.render();
+			lightMap.render(combined, x1, x2, y1, y2);
 		}
 
 	}

@@ -27,6 +27,7 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Matrix4;
 import com.box2dLight.shaders.DiffuseShader;
 import com.box2dLight.shaders.Gaussian;
 import com.box2dLight.shaders.ShadowShader;
@@ -46,7 +47,7 @@ class LightMap {
 
 	boolean lightMapDrawingDisabled;
 
-	public void render () {
+	public void render (Matrix4 combined, float x1, float x2, float y1, float y2) {
 
 		boolean needed = rayHandler.lightRenderedLastFrame > 0;
 		// this way lot less binding
@@ -72,7 +73,21 @@ class LightMap {
 				Gdx.gl20.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
 				shader.setUniformf("ambient", c.r * c.a, c.g * c.a, c.b * c.a, 1f - c.a);
 			}
+/*
+			verts[X1] = x1;
+			verts[Y1] = y2;
 
+			verts[X2] = x2;
+			verts[Y2] = y2;
+
+			verts[X3] = x2;
+			verts[Y3] = y1;
+
+			verts[X4] = x1;
+			verts[Y4] = y1;
+			lightMapMesh.setVertices(verts);
+			
+			shader.setUniformMatrix("u_projTrans", combined);*/
 			lightMapMesh.render(shader, GL20.GL_TRIANGLE_FAN);
 			shader.end();
 		} else if (needed) {
@@ -149,20 +164,25 @@ class LightMap {
 
 	}
 
+	final float[] verts = new float[VERT_SIZE];
+	
 	private Mesh createLightMapMesh () {
-		float[] verts = new float[VERT_SIZE];
 		// vertex coord
 		verts[X1] = -1;
 		verts[Y1] = -1;
+		verts[Z1] = 0;
 
 		verts[X2] = 1;
 		verts[Y2] = -1;
+		verts[Z2] = 0;
 
 		verts[X3] = 1;
 		verts[Y3] = 1;
+		verts[Z3] = 0;
 
 		verts[X4] = -1;
 		verts[Y4] = 1;
+		verts[Z4] = 0;
 
 		// tex coords
 		verts[U1] = 0f;
@@ -177,7 +197,7 @@ class LightMap {
 		verts[U4] = 0f;
 		verts[V4] = 1f;
 
-		Mesh tmpMesh = new Mesh(true, 4, 0, new VertexAttribute(Usage.Position, 2, "a_position"), new VertexAttribute(
+		Mesh tmpMesh = new Mesh(true, 4, 0, new VertexAttribute(Usage.Position, 3, "a_position"), new VertexAttribute(
 			Usage.TextureCoordinates, 2, "a_texCoord"));
 
 		tmpMesh.setVertices(verts);
@@ -185,22 +205,26 @@ class LightMap {
 
 	}
 
-	static public final int VERT_SIZE = 16;
+	static public final int VERT_SIZE = 20;
 	static public final int X1 = 0;
 	static public final int Y1 = 1;
-	static public final int U1 = 2;
-	static public final int V1 = 3;
-	static public final int X2 = 4;
-	static public final int Y2 = 5;
-	static public final int U2 = 6;
-	static public final int V2 = 7;
-	static public final int X3 = 8;
-	static public final int Y3 = 9;
-	static public final int U3 = 10;
-	static public final int V3 = 11;
-	static public final int X4 = 12;
-	static public final int Y4 = 13;
-	static public final int U4 = 14;
-	static public final int V4 = 15;
+	static public final int Z1 = 2;
+	static public final int U1 = 3;
+	static public final int V1 = 4;
+	static public final int X2 = 5;
+	static public final int Y2 = 6;
+	static public final int Z2 = 7;
+	static public final int U2 = 8;
+	static public final int V2 = 9;
+	static public final int X3 = 10;
+	static public final int Y3 = 11;
+	static public final int Z3 = 12;
+	static public final int U3 = 13;
+	static public final int V3 = 14;
+	static public final int X4 = 15;
+	static public final int Y4 = 16;
+	static public final int Z4 = 17;
+	static public final int U4 = 18;
+	static public final int V4 = 19;
 
 }
