@@ -84,6 +84,13 @@ public class DirectionalLight extends Light {
 	float lastX;
 
 	@Override
+	public void remove () {
+		super.remove();
+		nativeLight.releaseLight();
+		nativeLight = null;
+	}
+
+	@Override
 	void update () {
 		if (staticLight) return;
 

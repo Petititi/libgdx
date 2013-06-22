@@ -73,21 +73,6 @@ class LightMap {
 				Gdx.gl20.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
 				shader.setUniformf("ambient", c.r * c.a, c.g * c.a, c.b * c.a, 1f - c.a);
 			}
-/*
-			verts[X1] = x1;
-			verts[Y1] = y2;
-
-			verts[X2] = x2;
-			verts[Y2] = y2;
-
-			verts[X3] = x2;
-			verts[Y3] = y1;
-
-			verts[X4] = x1;
-			verts[Y4] = y1;
-			lightMapMesh.setVertices(verts);
-			
-			shader.setUniformMatrix("u_projTrans", combined);*/
 			lightMapMesh.render(shader, GL20.GL_TRIANGLE_FAN);
 			shader.end();
 		} else if (needed) {

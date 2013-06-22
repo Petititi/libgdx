@@ -132,7 +132,8 @@ public abstract class Light {
 	public void remove () {
 		rayHandler.lightList.removeValue(this, false);
 		lightMesh.dispose();
-		softShadowMesh.dispose();
+		if( softShadowMesh!=null )
+			softShadowMesh.dispose();
 	}
 
 	/** attach positional light to automatically follow body. Position is fixed to given offset
