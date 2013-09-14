@@ -199,6 +199,11 @@ public class TextField extends Widget {
 							cut();
 							return true;
 						}
+						// select all
+						if (keycode == Keys.A) {
+							selectAll();
+							return true;
+						}
 					}
 					if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT)) {
 						// paste
@@ -553,7 +558,7 @@ public class TextField extends Widget {
 
 	/** Copies the contents of this TextField to the {@link Clipboard} implementation set on this TextField. */
 	public void copy () {
-		if (hasSelection) {
+		if (hasSelection && !passwordMode) {
 			int minIndex = Math.min(cursor, selectionStart);
 			int maxIndex = Math.max(cursor, selectionStart);
 			clipboard.setContents(text.substring(minIndex, maxIndex));
@@ -563,7 +568,7 @@ public class TextField extends Widget {
 	/** Copies the selected contents of this TextField to the {@link Clipboard} implementation set on this TextField, then removes
 	 * it. */
 	public void cut () {
-		if (hasSelection) {
+		if (hasSelection && !passwordMode) {
 			copy();
 			delete();
 		}
@@ -858,7 +863,9 @@ public class TextField extends Widget {
 	 * @author Nathan Sweet */
 	static public class TextFieldStyle {
 		public BitmapFont font;
-		public Color fontColor, focusedFontColor, disabledFontColor;
+		public Color fontColor;
+		/** Optional. */
+		public Color focusedFontColor, disabledFontColor;
 		/** Optional. */
 		public Drawable background, focusedBackground, disabledBackground, cursor, selection;
 		/** Optional. */

@@ -29,8 +29,8 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.List.ListStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane.ScrollPaneStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Pools;
@@ -55,6 +55,7 @@ public class SelectBox extends Widget {
 	private float prefWidth, prefHeight;
 	private ClickListener clickListener;
 	int maxListCount;
+	boolean disabled;
 
 	public SelectBox (Object[] items, Skin skin) {
 		this(items, skin.get(SelectBoxStyle.class));
@@ -73,6 +74,7 @@ public class SelectBox extends Widget {
 		addListener(clickListener = new ClickListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (pointer == 0 && button != 0) return false;
+				if (disabled) return false;
 				Stage stage = getStage();
 				if (list == null) list = new SelectList();
 				list.show(stage);
@@ -87,7 +89,7 @@ public class SelectBox extends Widget {
 		this.maxListCount = maxListCount;
 	}
 
-	/** @return Max number of dropdown List items to display when the box is opened, or <= 0 to display them all. */
+	/** @return Max number of items to display when the box is opened, or <= 0 to display them all. */
 	public int getMaxListCount () {
 		return maxListCount;
 	}
@@ -126,12 +128,23 @@ public class SelectBox extends Widget {
 		prefHeight = Math.max(bg.getTopHeight() + bg.getBottomHeight() + font.getCapHeight() - font.getDescent() * 2,
 			bg.getMinHeight());
 
-		float max = 0;
+		float maxItemWidth = 0;
 		for (int i = 0; i < items.length; i++)
-			max = Math.max(font.getBounds(items[i]).width, max);
-		prefWidth = bg.getLeftWidth() + bg.getRightWidth() + max;
-		prefWidth = Math.max(prefWidth, max + style.listBackground.getLeftWidth() + style.listBackground.getRightWidth()
-			+ style.listSelection.getLeftWidth() + style.listSelection.getRightWidth());
+			maxItemWidth = Math.max(font.getBounds(items[i]).width, maxItemWidth);
+
+		prefWidth = bg.getLeftWidth() + bg.getRightWidth() + maxItemWidth;
+
+		ListStyle listStyle = style.listStyle;
+		ScrollPaneStyle scrollStyle = style.scrollStyle;
+		prefWidth = Math.max(
+			prefWidth,
+			maxItemWidth
+				+ scrollStyle.background.getLeftWidth()
+				+ scrollStyle.background.getRightWidth()
+				+ listStyle.selection.getLeftWidth()
+				+ listStyle.selection.getRightWidth()
+				+ Math.max(style.scrollStyle.vScroll != null ? style.scrollStyle.vScroll.getMinWidth() : 0,
+					style.scrollStyle.vScrollKnob != null ? style.scrollStyle.vScrollKnob.getMinWidth() : 0));
 
 		if (items.length > 0) {
 			ChangeEvent changeEvent = Pools.obtain(ChangeEvent.class);
@@ -149,14 +162,16 @@ public class SelectBox extends Widget {
 	@Override
 	public void draw (SpriteBatch batch, float parentAlpha) {
 		Drawable background;
-		if (list != null && list.getParent() != null && style.backgroundOpen != null)
+		if (disabled)
+			background = style.backgroundDisabled;
+		else if (list != null && list.getParent() != null && style.backgroundOpen != null)
 			background = style.backgroundOpen;
 		else if (clickListener.isOver() && style.backgroundOver != null)
 			background = style.backgroundOver;
 		else
 			background = style.background;
 		final BitmapFont font = style.font;
-		final Color fontColor = style.fontColor;
+		final Color fontColor = (disabled && style.disabledFontColor != null) ? style.disabledFontColor : style.fontColor;
 
 		Color color = getColor();
 		float x = getX();
@@ -201,6 +216,11 @@ public class SelectBox extends Widget {
 		return items[selectedIndex];
 	}
 
+	public void setDisabled (boolean disabled) {
+		if (disabled && !this.disabled) hideList();
+		this.disabled = disabled;
+	}
+
 	public float getPrefWidth () {
 		return prefWidth;
 	}
@@ -219,17 +239,12 @@ public class SelectBox extends Widget {
 		final Vector2 screenCoords = new Vector2();
 
 		public SelectList () {
-			super(null);
+			super(null, style.scrollStyle);
 
-			getStyle().background = style.listBackground;
 			setOverscroll(false, false);
+			setFadeScrollBars(false);
 
-			ListStyle listStyle = new ListStyle();
-			listStyle.font = style.font;
-			listStyle.fontColorSelected = style.fontColor;
-			listStyle.fontColorUnselected = style.fontColor;
-			listStyle.selection = style.listSelection;
-			list = new List(new Object[0], listStyle);
+			list = new List(new Object[0], style.listStyle);
 			setWidget(list);
 			list.addListener(new InputListener() {
 				public boolean mouseMoved (InputEvent event, float x, float y) {
@@ -294,8 +309,11 @@ public class SelectBox extends Widget {
 			scrollToCenter(0, list.getHeight() - selectedIndex * itemHeight - itemHeight / 2, 0, 0);
 			updateVisualScroll();
 
+			clearActions();
 			getColor().a = 0;
 			addAction(fadeIn(0.3f, Interpolation.fade));
+
+			stage.setScrollFocus(this);
 		}
 
 		@Override
@@ -315,32 +333,38 @@ public class SelectBox extends Widget {
 	 * @author mzechner
 	 * @author Nathan Sweet */
 	static public class SelectBoxStyle {
-		public Drawable background;
-		/** Optional. */
-		public Drawable backgroundOver, backgroundOpen;
-		public Drawable listBackground;
-		public Drawable listSelection;
 		public BitmapFont font;
 		public Color fontColor = new Color(1, 1, 1, 1);
+		/** Optional. */
+		public Color disabledFontColor;
+		public Drawable background;
+		public ScrollPaneStyle scrollStyle;
+		public ListStyle listStyle;
+		/** Optional. */
+		public Drawable backgroundOver, backgroundOpen, backgroundDisabled;
 
 		public SelectBoxStyle () {
 		}
 
-		public SelectBoxStyle (BitmapFont font, Color fontColor, Drawable background, Drawable listBackground,
-			Drawable listSelection) {
-			this.background = background;
-			this.listBackground = listBackground;
-			this.listSelection = listSelection;
+		public SelectBoxStyle (BitmapFont font, Color fontColor, Drawable background, ScrollPaneStyle scrollStyle,
+			ListStyle listStyle) {
 			this.font = font;
 			this.fontColor.set(fontColor);
+			this.background = background;
+			this.scrollStyle = scrollStyle;
+			this.listStyle = listStyle;
 		}
 
 		public SelectBoxStyle (SelectBoxStyle style) {
-			this.background = style.background;
-			this.listBackground = style.listBackground;
-			this.listSelection = style.listSelection;
 			this.font = style.font;
 			this.fontColor.set(style.fontColor);
+			if (style.disabledFontColor != null) this.disabledFontColor = new Color(style.disabledFontColor);
+			this.background = style.background;
+			this.backgroundOver = style.backgroundOver;
+			this.backgroundOpen = style.backgroundOpen;
+			this.backgroundDisabled = style.backgroundDisabled;
+			this.scrollStyle = new ScrollPaneStyle(style.scrollStyle);
+			this.listStyle = new ListStyle(style.listStyle);
 		}
 	}
 }

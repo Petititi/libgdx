@@ -36,7 +36,7 @@ public class BaseWorld<T extends BaseEntity> implements Disposable {
 		public Model model = null;
 		public abstract T construct(final float x, final float y, final float z);
 		public abstract T construct(final Matrix4 transform);
-	}	
+	}
 	
 	private final ObjectMap<String, Constructor<T>> constructors = new ObjectMap<String, Constructor<T>>();
 	protected final Array<T> entities = new Array<T>();
@@ -74,13 +74,11 @@ public class BaseWorld<T extends BaseEntity> implements Disposable {
 	
 	public void render(final ModelBatch batch, final Lights lights, final Iterable<T> entities) {
 		for (final T e : entities) {
-			e.modelInstance.calculateTransforms();
 			batch.render(e.modelInstance, lights);
 		}
 	}
 	
 	public void render(final ModelBatch batch, final Lights lights, final T entity) {
-		entity.modelInstance.calculateTransforms();
 		batch.render(entity.modelInstance, lights);
 	}
 	
@@ -96,8 +94,6 @@ public class BaseWorld<T extends BaseEntity> implements Disposable {
 			constructor.dispose();
 		constructors.clear();
 		
-		//for (int i = 0; i < models.size; i++)
-			//models.get(i).dispose();
 		models.clear();
 	}
 }

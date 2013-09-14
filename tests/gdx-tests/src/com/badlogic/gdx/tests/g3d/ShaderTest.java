@@ -65,9 +65,9 @@ public class ShaderTest extends GdxTest {
 			"	gl_FragColor.rgb = vec3(v_test);\n" +
 			"}\n";
 		
-		protected final int u_projTrans	= registerUniform("u_projTrans");
-		protected final int u_worldTrans	= registerUniform("u_worldTrans");
-		protected final int u_test			= registerUniform("u_test");
+		protected final int u_projTrans	= register(new Uniform("u_projTrans"));
+		protected final int u_worldTrans	= register(new Uniform("u_worldTrans"));
+		protected final int u_test			= register(new Uniform("u_test"));
 		
 		protected final ShaderProgram program;
 		
@@ -76,7 +76,11 @@ public class ShaderTest extends GdxTest {
 			program = new ShaderProgram(vertexShader, fragmentShader);
 			if (!program.isCompiled())
 				throw new GdxRuntimeException("Couldn't compile shader " + program.getLog());
-			init(program, 0, 0, 0);
+		}
+		
+		@Override
+		public void init () {
+			super.init(program, null);
 		}
 		
 		@Override

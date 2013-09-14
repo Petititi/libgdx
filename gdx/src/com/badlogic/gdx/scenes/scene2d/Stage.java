@@ -64,29 +64,27 @@ public class Stage extends InputAdapter implements Disposable {
 	private Camera camera;
 	private final SpriteBatch batch;
 	private final boolean ownsBatch;
-	private Group root;
+	private final Group root;
 	private final Vector2 stageCoords = new Vector2();
-	private Actor[] pointerOverActors = new Actor[20];
-	private boolean[] pointerTouched = new boolean[20];
-	private int[] pointerScreenX = new int[20];
-	private int[] pointerScreenY = new int[20];
+	private final Actor[] pointerOverActors = new Actor[20];
+	private final boolean[] pointerTouched = new boolean[20];
+	private final int[] pointerScreenX = new int[20];
+	private final int[] pointerScreenY = new int[20];
 	private int mouseScreenX, mouseScreenY;
 	private Actor mouseOverActor;
 	private Actor keyboardFocus, scrollFocus;
-	private SnapshotArray<TouchFocus> touchFocuses = new SnapshotArray(true, 4, TouchFocus.class);
+	private final SnapshotArray<TouchFocus> touchFocuses = new SnapshotArray(true, 4, TouchFocus.class);
 
 	/** Creates a stage with a {@link #setViewport(float, float, boolean) viewport} equal to the device screen resolution. The stage
 	 * will use its own {@link SpriteBatch}. */
 	public Stage () {
-		this(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+		this(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false, null);
 	}
 
 	/** Creates a stage with the specified {@link #setViewport(float, float, boolean) viewport}. The stage will use its own
 	 * {@link SpriteBatch}, which will be disposed when the stage is disposed. */
 	public Stage (float width, float height, boolean keepAspectRatio) {
-		batch = new SpriteBatch();
-		ownsBatch = true;
-		initialize(width, height, keepAspectRatio);
+		this(width, height, keepAspectRatio, null);
 	}
 
 	/** Creates a stage with the specified {@link #setViewport(float, float, boolean) viewport} and {@link SpriteBatch}. This can be
@@ -94,12 +92,9 @@ public class Stage extends InputAdapter implements Disposable {
 	 * life time.
 	 * @param batch Will not be disposed if {@link #dispose()} is called. Handle disposal yourself. */
 	public Stage (float width, float height, boolean keepAspectRatio, SpriteBatch batch) {
-		this.batch = batch;
-		ownsBatch = false;
-		initialize(width, height, keepAspectRatio);
-	}
+		ownsBatch = batch == null;
+		this.batch = ownsBatch ? new SpriteBatch() : batch;
 
-	private void initialize (float width, float height, boolean keepAspectRatio) {
 		this.width = width;
 		this.height = height;
 
@@ -452,9 +447,9 @@ public class Stage extends InputAdapter implements Disposable {
 	}
 
 	/** Sends a touchUp event to all listeners that are registered to receive touchDragged and touchUp events and removes their
-	 * touch focus. The location of the touchUp is {@link Integer#MIN_VALUE}. This method removes all touch focus listeners, but
-	 * sends a touchUp event so that the state of the listeners remains consistent (listeners typically expect to receive touchUp
-	 * eventually). */
+	 * touch focus. This method removes all touch focus listeners, but sends a touchUp event so that the state of the listeners
+	 * remains consistent (listeners typically expect to receive touchUp eventually). The location of the touchUp is
+	 * {@link Integer#MIN_VALUE}. Listeners can use {@link InputEvent#isTouchFocusCancel()} to ignore this event if needed. */
 	public void cancelTouchFocus () {
 		cancelTouchFocus(null, null);
 	}

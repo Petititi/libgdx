@@ -14,43 +14,86 @@ import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 
 public class btRigidBody extends btCollisionObject {
-  private long swigCPtr;
+	private long swigCPtr;
+	
+	protected btRigidBody(final String className, long cPtr, boolean cMemoryOwn) {
+		super(className, gdxBulletJNI.btRigidBody_SWIGUpcast(cPtr), cMemoryOwn);
+		swigCPtr = cPtr;
+	}
+	
+	protected btRigidBody(long cPtr, boolean cMemoryOwn) {
+		this("btRigidBody", cPtr, cMemoryOwn);
+		construct();
+	}
+	
+	public static long getCPtr(btRigidBody obj) {
+		return (obj == null) ? 0 : obj.swigCPtr;
+	}
 
-  protected btRigidBody(long cPtr, boolean cMemoryOwn) {
-    super(gdxBulletJNI.btRigidBody_SWIGUpcast(cPtr), cMemoryOwn);
-    swigCPtr = cPtr;
-  }
+	@Override
+	protected void finalize() throws Throwable {
+		if (!destroyed)
+			destroy();
+		super.finalize();
+	}
 
-  public static long getCPtr(btRigidBody obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
+  @Override protected synchronized void delete() {
+		if (swigCPtr != 0) {
+			if (swigCMemOwn) {
+				swigCMemOwn = false;
+				gdxBulletJNI.delete_btRigidBody(swigCPtr);
+			}
+			swigCPtr = 0;
+		}
+		super.delete();
+	}
 
-  protected void finalize() {
-    delete();
-  }
-
-  public synchronized void delete() {
-    if (swigCPtr != 0) {
-      if (swigCMemOwn) {
-        swigCMemOwn = false;
-        gdxBulletJNI.delete_btRigidBody(swigCPtr);
-      }
-      swigCPtr = 0;
-    }
-    super.delete();
-  }
-
-  public btRigidBody(btRigidBodyConstructionInfo constructionInfo) {
-    this(gdxBulletJNI.new_btRigidBody__SWIG_0(btRigidBodyConstructionInfo.getCPtr(constructionInfo), constructionInfo), true);
-  }
-
-  public btRigidBody(float mass, btMotionState motionState, btCollisionShape collisionShape, Vector3 localInertia) {
-    this(gdxBulletJNI.new_btRigidBody__SWIG_1(mass, btMotionState.getCPtr(motionState), motionState, btCollisionShape.getCPtr(collisionShape), collisionShape, localInertia), true);
-  }
-
-  public btRigidBody(float mass, btMotionState motionState, btCollisionShape collisionShape) {
-    this(gdxBulletJNI.new_btRigidBody__SWIG_2(mass, btMotionState.getCPtr(motionState), motionState, btCollisionShape.getCPtr(collisionShape), collisionShape), true);
-  }
+	protected btMotionState motionState;
+	
+	public btRigidBody(btRigidBodyConstructionInfo constructionInfo) {
+		this(false, constructionInfo);
+		refCollisionShape(constructionInfo.getCollisionShape());
+		refMotionState(constructionInfo.getMotionState());
+	}
+	
+	public btRigidBody(float mass, btMotionState motionState, btCollisionShape collisionShape, Vector3 localInertia) {
+		this(false, mass, motionState, collisionShape, localInertia);
+		refCollisionShape(collisionShape);
+		refMotionState(motionState);
+	}
+	
+	public btRigidBody(float mass, btMotionState motionState, btCollisionShape collisionShape) {
+		this(false, mass, motionState, collisionShape);
+		refCollisionShape(collisionShape);
+		refMotionState(motionState);
+	}
+  
+	public void setMotionState(btMotionState motionState) {
+		refMotionState(motionState);
+		internalSetMotionState(motionState);
+	}
+	
+	protected void refMotionState(btMotionState motionState) {
+		if (this.motionState == motionState)
+			return;
+		if (this.motionState != null)
+			this.motionState.release();
+		this.motionState = motionState;
+		if (this.motionState != null)
+			this.motionState.obtain();
+	}
+	
+	public btMotionState getMotionState() {
+		return motionState;
+	}
+	
+	@Override
+	public void dispose() {
+		if (motionState != null)
+			motionState.release();
+		motionState = null;
+		super.dispose();
+	}
 
   public void proceedToTransform(Matrix4 newTrans) {
     gdxBulletJNI.btRigidBody_proceedToTransform(swigCPtr, this, newTrans);
@@ -98,11 +141,6 @@ public class btRigidBody extends btCollisionObject {
 
   public void applyDamping(float timeStep) {
     gdxBulletJNI.btRigidBody_applyDamping(swigCPtr, this, timeStep);
-  }
-
-  public btCollisionShape getCollisionShape() {
-    long cPtr = gdxBulletJNI.btRigidBody_getCollisionShape__SWIG_0(swigCPtr, this);
-    return (cPtr == 0) ? null : btCollisionShape.newDerivedObject(cPtr, false);
   }
 
   public void setMassProps(float mass, Vector3 inertia) {
@@ -250,29 +288,29 @@ public class btRigidBody extends btCollisionObject {
     gdxBulletJNI.btRigidBody_setNewBroadphaseProxy(swigCPtr, this, btBroadphaseProxy.getCPtr(broadphaseProxy), broadphaseProxy);
   }
 
-  public btMotionState getMotionState() {
-    long cPtr = gdxBulletJNI.btRigidBody_getMotionState__SWIG_0(swigCPtr, this);
+  private btMotionState internalGetMotionState() {
+    long cPtr = gdxBulletJNI.btRigidBody_internalGetMotionState__SWIG_0(swigCPtr, this);
     return (cPtr == 0) ? null : new btMotionState(cPtr, false);
   }
 
-  public void setMotionState(btMotionState motionState) {
-    gdxBulletJNI.btRigidBody_setMotionState(swigCPtr, this, btMotionState.getCPtr(motionState), motionState);
+  private void internalSetMotionState(btMotionState motionState) {
+    gdxBulletJNI.btRigidBody_internalSetMotionState(swigCPtr, this, btMotionState.getCPtr(motionState), motionState);
   }
 
-  public void setM_contactSolverType(int value) {
-    gdxBulletJNI.btRigidBody_m_contactSolverType_set(swigCPtr, this, value);
+  public void setContactSolverType(int value) {
+    gdxBulletJNI.btRigidBody_contactSolverType_set(swigCPtr, this, value);
   }
 
-  public int getM_contactSolverType() {
-    return gdxBulletJNI.btRigidBody_m_contactSolverType_get(swigCPtr, this);
+  public int getContactSolverType() {
+    return gdxBulletJNI.btRigidBody_contactSolverType_get(swigCPtr, this);
   }
 
-  public void setM_frictionSolverType(int value) {
-    gdxBulletJNI.btRigidBody_m_frictionSolverType_set(swigCPtr, this, value);
+  public void setFrictionSolverType(int value) {
+    gdxBulletJNI.btRigidBody_frictionSolverType_set(swigCPtr, this, value);
   }
 
-  public int getM_frictionSolverType() {
-    return gdxBulletJNI.btRigidBody_m_frictionSolverType_get(swigCPtr, this);
+  public int getFrictionSolverType() {
+    return gdxBulletJNI.btRigidBody_frictionSolverType_get(swigCPtr, this);
   }
 
   public void setAngularFactor(Vector3 angFac) {
@@ -323,5 +361,17 @@ public class btRigidBody extends btCollisionObject {
   public Vector3 computeGyroscopicForce(float maxGyroscopicForce) {
 	return gdxBulletJNI.btRigidBody_computeGyroscopicForce(swigCPtr, this, maxGyroscopicForce);
 }
+
+  private btRigidBody(boolean dummy, btRigidBodyConstructionInfo constructionInfo) {
+    this(gdxBulletJNI.new_btRigidBody__SWIG_0(dummy, btRigidBodyConstructionInfo.getCPtr(constructionInfo), constructionInfo), true);
+  }
+
+  private btRigidBody(boolean dummy, float mass, btMotionState motionState, btCollisionShape collisionShape, Vector3 localInertia) {
+    this(gdxBulletJNI.new_btRigidBody__SWIG_1(dummy, mass, btMotionState.getCPtr(motionState), motionState, btCollisionShape.getCPtr(collisionShape), collisionShape, localInertia), true);
+  }
+
+  private btRigidBody(boolean dummy, float mass, btMotionState motionState, btCollisionShape collisionShape) {
+    this(gdxBulletJNI.new_btRigidBody__SWIG_2(dummy, mass, btMotionState.getCPtr(motionState), motionState, btCollisionShape.getCPtr(collisionShape), collisionShape), true);
+  }
 
 }

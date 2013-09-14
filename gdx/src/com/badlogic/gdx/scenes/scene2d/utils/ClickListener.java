@@ -71,9 +71,10 @@ public class ClickListener extends InputListener {
 	public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
 		if (pointer == pressedPointer) {
 			if (!cancelled) {
-				over = isOver(event.getListenerActor(), x, y);
-				if (over && pointer == 0 && this.button != -1 && button != this.button) over = false;
-				if (over) {
+				boolean touchUpOver = isOver(event.getListenerActor(), x, y);
+				// Ignore touch up if the wrong mouse button.
+				if (touchUpOver && pointer == 0 && this.button != -1 && button != this.button) touchUpOver = false;
+				if (touchUpOver) {
 					long time = TimeUtils.nanoTime();
 					if (time - lastTapTime > tapCountInterval) tapCount = 0;
 					tapCount++;
@@ -105,15 +106,6 @@ public class ClickListener extends InputListener {
 	}
 
 	public void clicked (InputEvent event, float x, float y) {
-	}
-
-	public void dragStart (InputEvent event, float x, float y, int pointer) {
-	}
-
-	public void drag (InputEvent event, float x, float y, int pointer) {
-	}
-
-	public void dragStop (InputEvent event, float x, float y, int pointer) {
 	}
 
 	/** Returns true if the specified position is over the specified actor or within the tap square. */

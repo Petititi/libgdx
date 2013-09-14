@@ -22,6 +22,11 @@
 
 package com.badlogic.gdx.graphics.g2d;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
@@ -31,11 +36,6 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
 
 /** Renders bitmap fonts. The font consists of 2 files: an image file or {@link TextureRegion} containing the glyphs and a file in
  * the AngleCode BMFont text format that describes where each glyph is on the image. Currently only a single image of glyphs is
@@ -122,7 +122,15 @@ public class BitmapFont implements Disposable {
 	 * @param region
 	 * @param integer */
 	public BitmapFont (BitmapFontData data, TextureRegion region, boolean integer) {
-		this.region = region == null ? new TextureRegion(new Texture(Gdx.files.internal(data.imagePath), false)) : region;
+		if (region != null) {
+			this.region = region;
+		} else {
+			if (data.fontFile == null) {
+				this.region = new TextureRegion(new Texture(Gdx.files.internal(data.imagePath), false));
+			} else {
+				this.region = new TextureRegion(new Texture(Gdx.files.getFileHandle(data.imagePath, data.fontFile.type()), false));
+			}
+		}
 		this.flipped = data.flipped;
 		this.data = data;
 		this.integer = integer;
@@ -437,30 +445,16 @@ public class BitmapFont implements Disposable {
 		int index = start;
 		float width = 0;
 		Glyph lastGlyph = null;
+		availableWidth /= data.scaleX;
 
-		if (data.scaleX == 1) {
-			for (; index < end; index++) {
-				char ch = str.charAt(index);
-				Glyph g = data.getGlyph(ch);
-				if (g != null) {
-					if (lastGlyph != null) width += lastGlyph.getKerning(ch);
-					if ((width + g.xadvance) - availableWidth > 0.001f) break;
-					width += g.xadvance;
-					lastGlyph = g;
-				}
-			}
-		} else {
-			float scaleX = this.data.scaleX;
-			for (; index < end; index++) {
-				char ch = str.charAt(index);
-				Glyph g = data.getGlyph(ch);
-				if (g != null) {
-					if (lastGlyph != null) width += lastGlyph.getKerning(ch) * scaleX;
-					float xadvance = g.xadvance * scaleX;
-					if ((width + xadvance) - availableWidth > 0.001f) break;
-					width += xadvance;
-					lastGlyph = g;
-				}
+		for (; index < end; index++) {
+			char ch = str.charAt(index);
+			Glyph g = data.getGlyph(ch);
+			if (g != null) {
+				if (lastGlyph != null) width += lastGlyph.getKerning(ch);
+				if ((width + g.xadvance) - availableWidth > 0.001f) break;
+				width += g.xadvance;
+				lastGlyph = g;
 			}
 		}
 		return index - start;
@@ -603,21 +597,16 @@ public class BitmapFont implements Disposable {
 	public BitmapFontData getData () {
 		return data;
 	}
-	
-	/**
-	 * @return whether the texture is owned by the font, font disposes the texture itself if true
-	 */
-	public boolean ownsTexture() {
+
+	/** @return whether the texture is owned by the font, font disposes the texture itself if true */
+	public boolean ownsTexture () {
 		return ownsTexture;
 	}
-	
-	/**
-	 * Sets whether the font owns the texture or not. In case it does,
-	 * the font will also dispose of the texture when {@link #dispose()}
-	 * is called. Use with care!
-	 * @param ownsTexture whether the font owns the texture
-	 */
-	public void setOwnsTexture(boolean ownsTexture) {
+
+	/** Sets whether the font owns the texture or not. In case it does, the font will also dispose of the texture when
+	 * {@link #dispose()} is called. Use with care!
+	 * @param ownsTexture whether the font owns the texture */
+	public void setOwnsTexture (boolean ownsTexture) {
 		this.ownsTexture = ownsTexture;
 	}
 

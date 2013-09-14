@@ -61,7 +61,7 @@ public class ObjectSet<T> implements Iterable<T> {
 	 * before growing the backing table. */
 	public ObjectSet (int initialCapacity, float loadFactor) {
 		if (initialCapacity < 0) throw new IllegalArgumentException("initialCapacity must be >= 0: " + initialCapacity);
-		if (capacity > 1 << 30) throw new IllegalArgumentException("initialCapacity is too large: " + initialCapacity);
+		if (initialCapacity > 1 << 30) throw new IllegalArgumentException("initialCapacity is too large: " + initialCapacity);
 		capacity = MathUtils.nextPowerOfTwo(initialCapacity);
 
 		if (loadFactor <= 0) throw new IllegalArgumentException("loadFactor must be > 0: " + loadFactor);
@@ -120,6 +120,12 @@ public class ObjectSet<T> implements Iterable<T> {
 
 		push(key, index1, key1, index2, key2, index3, key3);
 		return true;
+	}
+
+	public void addAll (Array<T> array) {
+		ensureCapacity(array.size);
+		for (int i = 0, n = array.size; i < n; i++)
+			add(array.get(i));
 	}
 
 	public void addAll (ObjectSet<T> set) {
@@ -277,6 +283,26 @@ public class ObjectSet<T> implements Iterable<T> {
 		if (index < lastIndex) keyTable[index] = keyTable[lastIndex];
 	}
 
+	/** Reduces the size of the backing arrays to be the specified capacity or less. If the capacity is already less, nothing is
+	 * done. If the map contains more items than the specified capacity, the next highest power of two capacity is used instead. */
+	public void shrink (int maximumCapacity) {
+		if (maximumCapacity < 0) throw new IllegalArgumentException("maximumCapacity must be >= 0: " + maximumCapacity);
+		if (size > maximumCapacity) maximumCapacity = size;
+		if (capacity <= maximumCapacity) return;
+		maximumCapacity = MathUtils.nextPowerOfTwo(maximumCapacity);
+		resize(maximumCapacity);
+	}
+
+	/** Clears the map and reduces the size of the backing arrays to be the specified capacity if they are larger. */
+	public void clear (int maximumCapacity) {
+		if (capacity <= maximumCapacity) {
+			clear();
+			return;
+		}
+		size = 0;
+		resize(maximumCapacity);
+	}
+
 	public void clear () {
 		T[] keyTable = this.keyTable;
 		for (int i = capacity + stashSize; i-- > 0;)
@@ -326,11 +352,14 @@ public class ObjectSet<T> implements Iterable<T> {
 
 		keyTable = (T[])new Object[newSize + stashCapacity];
 
+		int oldSize = size;
 		size = 0;
 		stashSize = 0;
-		for (int i = 0; i < oldEndIndex; i++) {
-			T key = oldKeyTable[i];
-			if (key != null) addResize(key);
+		if (oldSize > 0) {
+			for (int i = 0; i < oldEndIndex; i++) {
+				T key = oldKeyTable[i];
+				if (key != null) addResize(key);
+			}
 		}
 	}
 
@@ -345,9 +374,12 @@ public class ObjectSet<T> implements Iterable<T> {
 	}
 
 	public String toString () {
-		if (size == 0) return "{}";
+		return '{' + toString(", ") + '}';
+	}
+
+	public String toString (String separator) {
+		if (size == 0) return "";
 		StringBuilder buffer = new StringBuilder(32);
-		buffer.append('{');
 		T[] keyTable = this.keyTable;
 		int i = keyTable.length;
 		while (i-- > 0) {
@@ -359,10 +391,9 @@ public class ObjectSet<T> implements Iterable<T> {
 		while (i-- > 0) {
 			T key = keyTable[i];
 			if (key == null) continue;
-			buffer.append(", ");
+			buffer.append(separator);
 			buffer.append(key);
 		}
-		buffer.append('}');
 		return buffer.toString();
 	}
 

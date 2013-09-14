@@ -57,10 +57,7 @@ public class IOSGraphics extends NSObject implements Graphics, GLKViewDelegate,
 			CGSize bounds = app.getBounds(this);
 			graphics.width = (int) bounds.width();
 			graphics.height = (int) bounds.height();
-			graphics.makeCurrent(); // not sure if that's needed? badlogic: yes
-									// it is, so resize can do OpenGL stuff, not
-									// sure if
-			// it's on the correct thread though
+			graphics.makeCurrent();
 			app.listener.resize(graphics.width, graphics.height);
 		}
 
@@ -119,13 +116,11 @@ public class IOSGraphics extends NSObject implements Graphics, GLKViewDelegate,
 	GLKView view;
 	IOSUIViewController viewController;
 
-	public IOSGraphics(CGSize bounds, IOSApplication app, IOSInput input,
-			GL20 gl20) {
+	public IOSGraphics(CGSize bounds, IOSApplication app, IOSInput input, GL20 gl20) {
 		// setup view and OpenGL
 		width = (int) bounds.width();
 		height = (int) bounds.height();
-		app.debug(tag, bounds.width() + "x" + bounds.height() + ", "
-				+ UIScreen.getMainScreen().getScale());
+		app.debug(tag, bounds.width() + "x" + bounds.height() + ", " + UIScreen.getMainScreen().getScale());
 		this.gl20 = gl20;
 
 		context = new EAGLContext(EAGLRenderingAPI.OpenGLES2);
@@ -183,11 +178,8 @@ public class IOSGraphics extends NSObject implements Graphics, GLKViewDelegate,
 		// if ((UIScreen.getMainScreen().respondsToSelector(new
 		// Selector("scale")))) {
 		float scale = UIScreen.getMainScreen().getScale();
-		app.debug(tag, "Calculating density, UIScreen.mainScreen.scale: "
-				+ scale);
-		if (scale == 2f)
-			density = 2f;
-		// }
+		app.debug(tag, "Calculating density, UIScreen.mainScreen.scale: " + scale);
+		if (scale == 2f) density = 2f;
 
 		int ppi;
 		if (UIDevice.getCurrentDevice().getUserInterfaceIdiom() == UIUserInterfaceIdiom.Pad) {
@@ -225,6 +217,7 @@ public class IOSGraphics extends NSObject implements Graphics, GLKViewDelegate,
 		if(!created) {
 			app.graphics.makeCurrent();
 			app.listener.create();
+			app.listener.resize(width, height);
 			created = true;
 		}
 		if (paused) {
@@ -264,9 +257,8 @@ public class IOSGraphics extends NSObject implements Graphics, GLKViewDelegate,
 		}
 
 		makeCurrent();
-		((IOSInput) Gdx.input).processEvents();
+		input.processEvents();
 		app.listener.render();
-		// SwapBuffers();
 	}
 
 	void makeCurrent() {
@@ -287,17 +279,6 @@ public class IOSGraphics extends NSObject implements Graphics, GLKViewDelegate,
 			resume();
 		}
 	}
-
-	// @Override
-	// protected void OnResize (EventArgs event) {
-	// super.OnResize(event);
-	//
-	// // not used on iOS
-	// // FIXME resize could happen if app supports both portrait and landscape,
-	// so this should be implemented
-	// Gdx.app.debug("IOSGraphics",
-	// "iOS OnResize(...) is not implement (don't think it is needed?).");
-	// }
 
 	@Override
 	public boolean isGL11Available() {
