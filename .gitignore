@@ -46,3 +46,7 @@ libgdx-*.zip
 /extensions/gdx-controllers/gdx-controllers-desktop/libs/
 /extensions/gdx-freetype/libs/
 /extensions/gdx-image/libs/
+
+/demos/pax-britannica/pax-britannica-android/assets/data/gui/Thumbs.db
+/demos/pax-britannica/pax-britannica-android/assets/data/sprites/Thumbs.db
+/libgdx-0.9.9-SNAPSHOT.zip.MD5

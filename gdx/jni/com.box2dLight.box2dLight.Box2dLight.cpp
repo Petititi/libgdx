@@ -7,7 +7,7 @@ JNIEXPORT void JNICALL Java_com_box2dLight_box2dLight_Box2dLight_jniSetLightMesh
 	float* segments = (float*)env->GetPrimitiveArrayCritical(obj_segments, 0);
 
 
-//@line:85
+//@line:83
 
 	((PointLight*) addr)->setLightMesh(segments,colorF,isGL20);
 	
@@ -19,7 +19,7 @@ JNIEXPORT void JNICALL Java_com_box2dLight_box2dLight_Box2dLight_jniSetShadowMes
 	float* segments = (float*)env->GetPrimitiveArrayCritical(obj_segments, 0);
 
 
-//@line:89
+//@line:87
 
 	((PointLight*) addr)->setShadowMesh(segments,colorF,softShadowLenght,isGL20);
 	
@@ -30,7 +30,7 @@ JNIEXPORT void JNICALL Java_com_box2dLight_box2dLight_Box2dLight_jniSetShadowMes
 JNIEXPORT void JNICALL Java_com_box2dLight_box2dLight_Box2dLight_jniSetSensorFilter(JNIEnv* env, jobject object, jlong addr, jboolean shouldCollide) {
 
 
-//@line:123
+//@line:121
 
 	((PointLight*) addr)->setSensorFilter(shouldCollide);
 
@@ -40,7 +40,7 @@ JNIEXPORT void JNICALL Java_com_box2dLight_box2dLight_Box2dLight_jniSetSensorFil
 JNIEXPORT void JNICALL Java_com_box2dLight_box2dLight_Box2dLight_jniSetContactFilter(JNIEnv* env, jclass clazz, jshort categoryBits, jshort groupIndex, jshort maskBits) {
 
 
-//@line:128
+//@line:126
 
 	PointLight::setContactFilter((short)categoryBits,(short)groupIndex,(short)maskBits);
 
@@ -50,7 +50,7 @@ JNIEXPORT void JNICALL Java_com_box2dLight_box2dLight_Box2dLight_jniSetContactFi
 JNIEXPORT void JNICALL Java_com_box2dLight_box2dLight_Box2dLight_jniComputeOcclusion__JFFFFF(JNIEnv* env, jobject object, jlong addr, jfloat x, jfloat y, jfloat distance, jfloat direction, jfloat coneSize) {
 
 
-//@line:133
+//@line:131
 
 	((PointLight*) addr)->computePoints(x, y, distance, direction, coneSize);
 
@@ -60,7 +60,7 @@ JNIEXPORT void JNICALL Java_com_box2dLight_box2dLight_Box2dLight_jniComputeOcclu
 JNIEXPORT void JNICALL Java_com_box2dLight_box2dLight_Box2dLight_jniComputeOcclusion__JFFF(JNIEnv* env, jobject object, jlong addr, jfloat x, jfloat y, jfloat distance) {
 
 
-//@line:137
+//@line:135
 
 	((PointLight*) addr)->computePoints(x, y, distance);
 
@@ -70,7 +70,7 @@ JNIEXPORT void JNICALL Java_com_box2dLight_box2dLight_Box2dLight_jniComputeOcclu
 JNIEXPORT void JNICALL Java_com_box2dLight_box2dLight_Box2dLight_jniReleaseLight(JNIEnv* env, jobject object, jlong addr) {
 
 
-//@line:141
+//@line:139
 
 	delete ((PointLight*) addr);
 
