@@ -111,7 +111,7 @@ public final class Intersector {
 		boolean oddNodes = false;
 		for (int i = 0; i < polygon.size; i++) {
 			Vector2 vertice = polygon.get(i);
-			if (vertice.y < point.y && lastVertice.y >= point.y || lastVertice.y < point.y && vertice.y >= point.y) {
+			if ((vertice.y < point.y && lastVertice.y >= point.y) || (lastVertice.y < point.y && vertice.y >= point.y)) {
 				if (vertice.x + (point.y - vertice.y) / (lastVertice.y - vertice.y) * (lastVertice.x - vertice.x) < point.x) {
 					oddNodes = !oddNodes;
 				}
@@ -128,7 +128,7 @@ public final class Intersector {
 		for (int i = offset, n = j; i <= n; i += 2) {
 			float yi = polygon[i + 1];
 			float yj = polygon[j + 1];
-			if (yi < y && yj >= y || yj < y && yi >= y) {
+			if ((yi < y && yj >= y) || (yj < y && yi >= y)) {
 				float xi = polygon[i];
 				if (xi + (y - yi) / (yj - yi) * (polygon[j] - xi) < x) oddNodes = !oddNodes;
 			}
@@ -720,6 +720,22 @@ public final class Intersector {
 		return false;
 	}
 
+	/** Determines whether the given rectangles intersect and, if they do,
+	 *  sets the supplied {@code intersection} rectangle to the area of overlap.
+	 * 
+	 * @return Whether the rectangles intersect
+	 */
+	static public boolean intersectRectangles(Rectangle rectangle1, Rectangle rectangle2, Rectangle intersection) {
+	    if (rectangle1.overlaps(rectangle2)) {
+	        intersection.x = Math.max(rectangle1.x, rectangle2.x);
+	        intersection.width = Math.min(rectangle1.x + rectangle1.width, rectangle2.x + rectangle2.width) - intersection.x;
+	        intersection.y = Math.max(rectangle1.y, rectangle2.y);
+	        intersection.height = Math.min(rectangle1.y + rectangle1.height, rectangle2.y + rectangle2.height) - intersection.y;
+	        return true;
+	    }
+	    return false;
+	}	
+	
 	/** Check whether the given line segment and {@link Polygon} intersect.
 	 * @param p1 The first point of the segment
 	 * @param p2 The second point of the segment
@@ -831,6 +847,11 @@ public final class Intersector {
 		return overlapConvexPolygons(p1.getTransformedVertices(), p2.getTransformedVertices(), mtv);
 	}
 
+	/** @see #overlapConvexPolygons(float[], int, int, float[], int, int, MinimumTranslationVector) */
+	public static boolean overlapConvexPolygons (float[] verts1, float[] verts2, MinimumTranslationVector mtv) {
+		return overlapConvexPolygons(verts1, 0, verts1.length, verts2, 0, verts2.length, mtv);
+	}
+
 	/** Check whether polygons defined by the given vertex arrays overlap. If they do, optionally obtain a Minimum Translation
 	 * Vector indicating the minimum magnitude vector required to push the polygons out of the collision.
 	 * 
@@ -838,18 +859,21 @@ public final class Intersector {
 	 * @param verts2 Vertices of the second polygon.
 	 * @param mtv A Minimum Translation Vector to fill in the case of a collision, or null (optional).
 	 * @return Whether polygons overlap. */
-	public static boolean overlapConvexPolygons (float[] verts1, float[] verts2, MinimumTranslationVector mtv) {
+	public static boolean overlapConvexPolygons (float[] verts1, int offset1, int count1, float[] verts2, int offset2, int count2,
+		MinimumTranslationVector mtv) {
 		float overlap = Float.MAX_VALUE;
 		float smallestAxisX = 0;
 		float smallestAxisY = 0;
 
+		int end1 = offset1 + count1;
+		int end2 = offset2 + count2;
+
 		// Get polygon1 axes
-		final int numAxes1 = verts1.length;
-		for (int i = 0; i < numAxes1; i += 2) {
+		for (int i = offset1; i < end1; i += 2) {
 			float x1 = verts1[i];
 			float y1 = verts1[i + 1];
-			float x2 = verts1[(i + 2) % numAxes1];
-			float y2 = verts1[(i + 3) % numAxes1];
+			float x2 = verts1[(i + 2) % count1];
+			float y2 = verts1[(i + 3) % count1];
 
 			float axisX = y1 - y2;
 			float axisY = -(x1 - x2);
@@ -863,7 +887,7 @@ public final class Intersector {
 			// Project polygon1 onto this axis
 			float min1 = axisX * verts1[0] + axisY * verts1[1];
 			float max1 = min1;
-			for (int j = 2; j < verts1.length; j += 2) {
+			for (int j = offset1; j < end1; j += 2) {
 				float p = axisX * verts1[j] + axisY * verts1[j + 1];
 				if (p < min1) {
 					min1 = p;
@@ -875,7 +899,7 @@ public final class Intersector {
 			// Project polygon2 onto this axis
 			float min2 = axisX * verts2[0] + axisY * verts2[1];
 			float max2 = min2;
-			for (int j = 2; j < verts2.length; j += 2) {
+			for (int j = offset2; j < end2; j += 2) {
 				float p = axisX * verts2[j] + axisY * verts2[j + 1];
 				if (p < min2) {
 					min2 = p;
@@ -909,12 +933,11 @@ public final class Intersector {
 		}
 
 		// Get polygon2 axes
-		final int numAxes2 = verts2.length;
-		for (int i = 0; i < numAxes2; i += 2) {
+		for (int i = offset2; i < end2; i += 2) {
 			float x1 = verts2[i];
 			float y1 = verts2[i + 1];
-			float x2 = verts2[(i + 2) % numAxes2];
-			float y2 = verts2[(i + 3) % numAxes2];
+			float x2 = verts2[(i + 2) % count2];
+			float y2 = verts2[(i + 3) % count2];
 
 			float axisX = y1 - y2;
 			float axisY = -(x1 - x2);
@@ -928,7 +951,7 @@ public final class Intersector {
 			// Project polygon1 onto this axis
 			float min1 = axisX * verts1[0] + axisY * verts1[1];
 			float max1 = min1;
-			for (int j = 2; j < verts1.length; j += 2) {
+			for (int j = offset1; j < end1; j += 2) {
 				float p = axisX * verts1[j] + axisY * verts1[j + 1];
 				if (p < min1) {
 					min1 = p;
@@ -940,7 +963,7 @@ public final class Intersector {
 			// Project polygon2 onto this axis
 			float min2 = axisX * verts2[0] + axisY * verts2[1];
 			float max2 = min2;
-			for (int j = 2; j < verts2.length; j += 2) {
+			for (int j = offset2; j < end2; j += 2) {
 				float p = axisX * verts2[j] + axisY * verts2[j + 1];
 				if (p < min2) {
 					min2 = p;

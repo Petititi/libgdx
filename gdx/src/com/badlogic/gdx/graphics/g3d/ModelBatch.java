@@ -1,13 +1,29 @@
+/*******************************************************************************
+ * Copyright 2011 See AUTHORS file.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
 package com.badlogic.gdx.graphics.g3d;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.g3d.lights.Lights;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultRenderableSorter;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
+import com.badlogic.gdx.graphics.g3d.utils.GLES10ShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.g3d.utils.RenderableSorter;
 import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider;
@@ -37,7 +53,7 @@ public class ModelBatch implements Disposable {
 		@Override
 		public Renderable obtain () {
 			Renderable renderable = super.obtain();
-			renderable.lights = null;
+			renderable.environment = null;
 			renderable.material = null;
 			renderable.mesh = null;
 			renderable.shader = null;
@@ -100,7 +116,7 @@ public class ModelBatch implements Disposable {
 	public ModelBatch() {
 		this(new RenderContext(new DefaultTextureBinder(DefaultTextureBinder.ROUNDROBIN, 1)),
 				true,
-				new DefaultShaderProvider(),
+				Gdx.graphics.isGL20Available() ? new DefaultShaderProvider() : new GLES10ShaderProvider(),
 				new DefaultRenderableSorter());
 	}
 
@@ -125,6 +141,13 @@ public class ModelBatch implements Disposable {
 		if (renderables.size > 0)
 			flush();
 		camera = cam;
+	}
+	
+	/** Provides access to the current camera in between {@link #begin(Camera)} and {@link #end()}. Do not change
+	 * the camera's values. Use {@link #setCamera(Camera)}, if you need to change the camera.
+	 * @return The current camera being used or null if called outside {@link #begin(Camera)} and {@link #end()}. */
+	public Camera getCamera() {
+		return camera;
 	}
 	
 	/** Flushes the batch, causing all {@link Renderable}s in the batch to be rendered. Can only be called after the
@@ -189,7 +212,7 @@ public class ModelBatch implements Disposable {
 	 * with the given lights. Can only be called after a call to {@link #begin(Camera)} and before a call to {@link #end()}.
 	 * @param renderableProvider the renderable provider
 	 * @param lights the lights to use for the renderables */
-	public void render(final RenderableProvider renderableProvider, final Lights lights) {
+	public void render(final RenderableProvider renderableProvider, final Environment lights) {
 		render(renderableProvider, lights, null);
 	}
 	
@@ -198,7 +221,7 @@ public class ModelBatch implements Disposable {
 	 * with the given lights. Can only be called after a call to {@link #begin(Camera)} and before a call to {@link #end()}.
 	 * @param renderableProviders one or more renderable providers
 	 * @param lights the lights to use for the renderables */
-	public <T extends RenderableProvider> void render(final Iterable<T> renderableProviders, final Lights lights) {
+	public <T extends RenderableProvider> void render(final Iterable<T> renderableProviders, final Environment lights) {
 		render(renderableProviders, lights, null);
 	}
 	
@@ -227,12 +250,12 @@ public class ModelBatch implements Disposable {
 	 * @param renderableProvider the renderable provider
 	 * @param lights the lights to use for the renderables
 	 * @param shader the shader to use for the renderables */
-	public void render(final RenderableProvider renderableProvider, final Lights lights, final Shader shader) {
+	public void render(final RenderableProvider renderableProvider, final Environment lights, final Shader shader) {
 		final int offset = renderables.size;
 		renderableProvider.getRenderables(renderables, renderablesPool);
 		for (int i = offset; i < renderables.size; i++) {
 			Renderable renderable = renderables.get(i);
-			renderable.lights = lights;
+			renderable.environment = lights;
 			renderable.shader = shader;
 			renderable.shader = shaderProvider.getShader(renderable);
 			reuseableRenderables.add(renderable);
@@ -246,7 +269,7 @@ public class ModelBatch implements Disposable {
 	 * @param renderableProviders one or more renderable providers
 	 * @param lights the lights to use for the renderables
 	 * @param shader the shader to use for the renderables */
-	public <T extends RenderableProvider> void render(final Iterable<T> renderableProviders, final Lights lights, final Shader shader) {
+	public <T extends RenderableProvider> void render(final Iterable<T> renderableProviders, final Environment lights, final Shader shader) {
 		for (final RenderableProvider renderableProvider : renderableProviders)
 			render(renderableProvider, lights, shader);
 	}
