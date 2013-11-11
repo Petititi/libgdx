@@ -16,6 +16,7 @@
 
 package com.badlogic.gdx.backends.iosrobovm;
 
+import com.badlogic.gdx.graphics.Pixmap;
 import org.robovm.cocoatouch.coregraphics.CGPoint;
 import org.robovm.cocoatouch.foundation.NSArray;
 import org.robovm.cocoatouch.foundation.NSSet;
@@ -217,17 +218,20 @@ public class IOSInput implements Input {
 
 	@Override
 	public void getTextInput(TextInputListener listener, String title, String text) {
-		final UIAlertView uiAlertView = buildUIAlertView(listener, title, text);
+		final UIAlertView uiAlertView = buildUIAlertView(listener, title, text, null);
 		uiAlertView.show();
 	}
+
+	// Issue 773 indicates this may solve a premature GC issue
+	UIAlertViewDelegate delegate;
 	
 	/** Builds an {@link UIAlertView} with an added {@link UITextField} for inputting text.
 	 * @param listener Text input listener
 	 * @param title Dialog title
 	 * @param text Text for text field
 	 * @return UiAlertView */
-	private UIAlertView buildUIAlertView (final TextInputListener listener, String title, String text) {
-		UIAlertViewDelegate delegate = new UIAlertViewDelegate.Adapter() {
+	private UIAlertView buildUIAlertView (final TextInputListener listener, String title, String text, String placeholder) {
+		delegate = new UIAlertViewDelegate.Adapter() {
 			@Override
 			public void clicked (UIAlertView view, int clicked) {
 				if (clicked == 0) {
@@ -235,20 +239,16 @@ public class IOSInput implements Input {
 					listener.canceled();
 				} else if (clicked == 1) {
 					// user clicked "Ok" button
-					NSArray<UIView> views = view.getSubviews();
-					for (UIView uiView : views) {
-						// find text field from sub views
-						if (uiView != null && uiView instanceof UITextField) {
-							UITextField tf = (UITextField)uiView;
-							listener.input(tf.getText());
-						}
-					}
+					UITextField textField = view.getTextField(0);
+					listener.input(textField.getText());
 				}
+				delegate = null;
 			}
 
 			@Override
 			public void cancel (UIAlertView view) {
 				listener.canceled();
+				delegate = null;
 			}
 		};
 
@@ -260,20 +260,17 @@ public class IOSInput implements Input {
 		uiAlertView.setAlertViewStyle(UIAlertViewStyle.PlainTextInput);
 		uiAlertView.setDelegate(delegate);
 
-		for (UIView uiView : (NSArray<UIView>) uiAlertView.getSubviews()) {
-			// find text field from sub views and add default text
-			if (uiView != null && uiView instanceof UITextField) {
-				UITextField tf = (UITextField)uiView;
-				tf.setText(text);
-			}
-		}
+		UITextField textField = uiAlertView.getTextField(0);
+		textField.setPlaceholder(placeholder);
+		textField.setText(text);
 
 		return uiAlertView;
 	}
 
 	@Override
 	public void getPlaceholderTextInput(TextInputListener listener, String title, String placeholder) {
-		// FIXME implement this
+		final UIAlertView uiAlertView = buildUIAlertView(listener, title, null, placeholder);
+		uiAlertView.show();
 	}
 
 	@Override
@@ -361,7 +358,11 @@ public class IOSInput implements Input {
 	public void setCursorPosition(int x, int y) {
 	}
 
-	public void touchDown(NSSet touches, UIEvent event) {
+  @Override
+  public void setCursorImage(Pixmap pixmap, int xHotspot, int yHotspot) {
+  }
+
+  public void touchDown(NSSet touches, UIEvent event) {
 		toTouchEvents(touches, event);
 	}
 

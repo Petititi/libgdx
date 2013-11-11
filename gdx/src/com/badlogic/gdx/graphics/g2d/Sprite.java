@@ -114,6 +114,8 @@ public class Sprite extends TextureRegion {
 		y = sprite.y;
 		width = sprite.width;
 		height = sprite.height;
+		regionWidth = sprite.regionWidth;
+		regionHeight = sprite.regionHeight;
 		originX = sprite.originX;
 		originY = sprite.originY;
 		rotation = sprite.rotation;
@@ -301,6 +303,7 @@ public class Sprite extends TextureRegion {
 	/** Sets the sprite's rotation in degrees relative to the current rotation. Rotation is centered on the origin set in
 	 * {@link #setOrigin(float, float)} */
 	public void rotate (float degrees) {
+		if(degrees == 0) return;
 		rotation += degrees;
 		dirty = true;
 	}

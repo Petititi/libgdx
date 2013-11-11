@@ -478,7 +478,7 @@ public class FileHandle {
 	}
 
 	/** Returns true if the file exists. On Android, a {@link FileType#Classpath} or {@link FileType#Internal} handle to a directory
-	 * will always return false. */
+	 * will always return false. Note that this can be very slow for internal files on Android! */
 	public boolean exists () {
 		switch (type) {
 		case Internal:
@@ -577,6 +577,21 @@ public class FileHandle {
 	 * is returned for {@link FileType#Internal} files on the classpath. */
 	public long lastModified () {
 		return file().lastModified();
+	}
+
+	@Override
+	public boolean equals (Object obj) {
+		if (!(obj instanceof FileHandle)) return false;
+		FileHandle other = (FileHandle)obj;
+		return type == other.type && path().equals(other.path());
+	}
+
+	@Override
+	public int hashCode () {
+		int hash = 1;
+		hash = hash * 37 + type.hashCode();
+		hash = hash * 67 + path().hashCode();
+		return hash;
 	}
 
 	public String toString () {
