@@ -17,7 +17,7 @@
 package com.badlogic.gdx.scenes.scene2d.ui;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -46,16 +46,14 @@ public class Button extends Table implements Disableable {
 		super(skin);
 		initialize();
 		setStyle(skin.get(ButtonStyle.class));
-		setWidth(getPrefWidth());
-		setHeight(getPrefHeight());
+		setSize(getPrefWidth(), getPrefHeight());
 	}
 
 	public Button (Skin skin, String styleName) {
 		super(skin);
 		initialize();
 		setStyle(skin.get(styleName, ButtonStyle.class));
-		setWidth(getPrefWidth());
-		setHeight(getPrefHeight());
+		setSize(getPrefWidth(), getPrefHeight());
 	}
 
 	public Button (Actor child, Skin skin, String styleName) {
@@ -66,15 +64,13 @@ public class Button extends Table implements Disableable {
 		initialize();
 		add(child);
 		setStyle(style);
-		setWidth(getPrefWidth());
-		setHeight(getPrefHeight());
+		setSize(getPrefWidth(), getPrefHeight());
 	}
 
 	public Button (ButtonStyle style) {
 		initialize();
 		setStyle(style);
-		setWidth(getPrefWidth());
-		setHeight(getPrefHeight());
+		setSize(getPrefWidth(), getPrefHeight());
 	}
 
 	/** Creates a button without setting the style or size. At least a style must be set before using this button. */
@@ -174,7 +170,7 @@ public class Button extends Table implements Disableable {
 		return style;
 	}
 
-	public void draw (SpriteBatch batch, float parentAlpha) {
+	public void draw (Batch batch, float parentAlpha) {
 		validate();
 
 		Drawable background = null;
@@ -210,7 +206,7 @@ public class Button extends Table implements Disableable {
 			children.get(i).translate(-offsetX, -offsetY);
 	}
 
-	protected void drawBackground (SpriteBatch batch, float parentAlpha) {
+	protected void drawBackground (Batch batch, float parentAlpha) {
 	}
 
 	public float getPrefWidth () {

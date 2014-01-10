@@ -19,9 +19,9 @@ package com.badlogic.gdx.scenes.scene2d.ui;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -52,7 +52,7 @@ public class SelectBox extends Widget implements Disableable {
 	String[] items;
 	int selectedIndex = 0;
 	private final TextBounds bounds = new TextBounds();
-	SelectList list;
+	ListScroll scroll;
 	private float prefWidth, prefHeight;
 	private ClickListener clickListener;
 	int maxListCount;
@@ -69,16 +69,15 @@ public class SelectBox extends Widget implements Disableable {
 	public SelectBox (Object[] items, SelectBoxStyle style) {
 		setStyle(style);
 		setItems(items);
-		setWidth(getPrefWidth());
-		setHeight(getPrefHeight());
+		setSize(getPrefWidth(), getPrefHeight());
 
 		addListener(clickListener = new ClickListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (pointer == 0 && button != 0) return false;
 				if (disabled) return false;
 				Stage stage = getStage();
-				if (list == null) list = new SelectList();
-				list.show(stage);
+				if (scroll == null) scroll = new ListScroll();
+				scroll.show(stage);
 				return true;
 			}
 		});
@@ -161,11 +160,11 @@ public class SelectBox extends Widget implements Disableable {
 	}
 
 	@Override
-	public void draw (SpriteBatch batch, float parentAlpha) {
+	public void draw (Batch batch, float parentAlpha) {
 		Drawable background;
-		if (disabled)
+		if (disabled && style.backgroundDisabled != null)
 			background = style.backgroundDisabled;
-		else if (list != null && list.getParent() != null && style.backgroundOpen != null)
+		else if (scroll != null && scroll.getParent() != null && style.backgroundOpen != null)
 			background = style.backgroundOpen;
 		else if (clickListener.isOver() && style.backgroundOver != null)
 			background = style.backgroundOver;
@@ -196,6 +195,7 @@ public class SelectBox extends Widget implements Disableable {
 	/** Sets the selected item via it's index
 	 * @param selection the selection index */
 	public void setSelection (int selection) {
+		if (selection < 0) throw new IllegalArgumentException("selection cannot be < 0.");
 		this.selectedIndex = selection;
 	}
 
@@ -231,15 +231,21 @@ public class SelectBox extends Widget implements Disableable {
 	}
 
 	public void hideList () {
-		if (list == null || list.getParent() == null) return;
-		list.addAction(sequence(fadeOut(0.15f, Interpolation.fade), removeActor()));
+		if (scroll == null || scroll.getParent() == null) return;
+		scroll.addAction(sequence(fadeOut(0.15f, Interpolation.fade), removeActor()));
 	}
 
-	class SelectList extends ScrollPane {
+	/** Returns the list shown when the select box is open, or null of the select box is closed. */
+	public List getList () {
+		if (scroll == null || scroll.getParent() == null) return null;
+		return scroll.list;
+	}
+
+	class ListScroll extends ScrollPane {
 		final List list;
 		final Vector2 screenCoords = new Vector2();
 
-		public SelectList () {
+		public ListScroll () {
 			super(null, style.scrollStyle);
 
 			setOverscroll(false, false);

@@ -17,10 +17,10 @@
 package com.badlogic.gdx.scenes.scene2d.ui;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 import com.badlogic.gdx.graphics.g2d.BitmapFontCache;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -32,7 +32,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
 /** A table that can be dragged and act as a modal window. The top padding is used as the window's title height.
  * <p>
- * The preferred size of a window is the preferred size of the title text and the children as layed out by the table. After adding
+ * The preferred size of a window is the preferred size of the title text and the children as laid out by the table. After adding
  * children to the window, it can be convenient to call {@link #pack()} to size the window to the size of the children.
  * @author Nathan Sweet */
 public class Window extends Table {
@@ -211,12 +211,12 @@ public class Window extends Table {
 		}
 	}
 
-	public void draw (SpriteBatch batch, float parentAlpha) {
+	public void draw (Batch batch, float parentAlpha) {
 		keepWithinStage();
 		super.draw(batch, parentAlpha);
 	}
 
-	protected void drawBackground (SpriteBatch batch, float parentAlpha) {
+	protected void drawBackground (Batch batch, float parentAlpha) {
 		float x = getX(), y = getY();
 		float width = getWidth(), height = getHeight();
 		float padTop = getPadTop();
@@ -255,7 +255,7 @@ public class Window extends Table {
 			else
 				y -= (padTop - bounds.height) / 2;
 		}
-		titleCache.setColor(Color.tmp.set(getColor()).mul(style.titleFontColor));
+		titleCache.setColors(Color.tmp.set(getColor()).mul(style.titleFontColor));
 		titleCache.setPosition((int)x, (int)y);
 		titleCache.draw(batch, parentAlpha);
 	}
@@ -316,8 +316,12 @@ public class Window extends Table {
 		return dragging;
 	}
 
+	public float getTitleWidth () {
+		return titleCache.getBounds().width;
+	}
+
 	public float getPrefWidth () {
-		return Math.max(super.getPrefWidth(), titleCache.getBounds().width + getPadLeft() + getPadRight());
+		return Math.max(super.getPrefWidth(), getTitleWidth() + getPadLeft() + getPadRight());
 	}
 
 	public Table getButtonTable () {

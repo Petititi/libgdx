@@ -17,8 +17,8 @@
 package com.badlogic.gdx.scenes.scene2d.ui;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
@@ -76,8 +76,7 @@ public class Slider extends Widget implements Disableable {
 		this.stepSize = stepSize;
 		this.vertical = vertical;
 		this.value = min;
-		setWidth(getPrefWidth());
-		setHeight(getPrefHeight());
+		setSize(getPrefWidth(), getPrefHeight());
 
 		addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -123,7 +122,7 @@ public class Slider extends Widget implements Disableable {
 	}
 
 	@Override
-	public void draw (SpriteBatch batch, float parentAlpha) {
+	public void draw (Batch batch, float parentAlpha) {
 		SliderStyle style = this.style;
 		boolean disabled = this.disabled;
 		final Drawable knob = (disabled && style.disabledKnob != null) ? style.disabledKnob : style.knob;

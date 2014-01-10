@@ -16,9 +16,10 @@
 
 package com.badlogic.gdx.scenes.scene2d.ui;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Scaling;
+
 import com.esotericsoftware.tablelayout.Cell;
 
 /** A button with a child {@link Image} to display an image. This is useful when the button must be larger than the image and the
@@ -44,8 +45,7 @@ public class ImageButton extends Button {
 		image.setScaling(Scaling.fit);
 		add(image);
 		setStyle(style);
-		setWidth(getPrefWidth());
-		setHeight(getPrefHeight());
+		setSize(getPrefWidth(), getPrefHeight());
 	}
 
 	public ImageButton (Drawable imageUp) {
@@ -85,7 +85,7 @@ public class ImageButton extends Button {
 			image.setDrawable(style.imageUp);
 	}
 
-	public void draw (SpriteBatch batch, float parentAlpha) {
+	public void draw (Batch batch, float parentAlpha) {
 		updateImage();
 		super.draw(batch, parentAlpha);
 	}

@@ -37,9 +37,9 @@ public class GdxSetup {
 		Project project = new Project();
 		
 		String packageDir = packageName.replace('.', '/');
-		
+
 		// root dir/gradle files
-		project.files.add(new ProjectFile("build.gradle"));
+		project.files.add(new ProjectFile("build.gradle", true));
 		project.files.add(new ProjectFile("settings.gradle"));
 		project.files.add(new ProjectFile("gradlew", false));
 		project.files.add(new ProjectFile("gradlew.bat", false));
@@ -49,11 +49,13 @@ public class GdxSetup {
 		// core project
 		project.files.add(new ProjectFile("core/build.gradle"));
 		project.files.add(new ProjectFile("core/src/MainClass", "core/src/" + packageDir + "/" + mainClass + ".java", true));
+        //core but gwt required
+        project.files.add(new ProjectFile("core/CoreGdxDefinition", "core/src/" + packageDir + "/" + mainClass + ".gwt.xml", true));
 		
 		// desktop project
 		project.files.add(new ProjectFile("desktop/build.gradle"));
 		project.files.add(new ProjectFile("desktop/src/DesktopLauncher", "desktop/src/" + packageDir + "/desktop/DesktopLauncher.java", true));
-		
+
 		// android project
 		project.files.add(new ProjectFile("android/assets/badlogic.jpg", false));
 		project.files.add(new ProjectFile("android/res/values/strings.xml", false));
@@ -68,7 +70,15 @@ public class GdxSetup {
 		project.files.add(new ProjectFile("android/ic_launcher-web.png", false));
 		project.files.add(new ProjectFile("android/proguard-project.txt", false));
 		project.files.add(new ProjectFile("android/project.properties", false));
-		
+
+        //gwt project
+        project.files.add(new ProjectFile("gwt/build.gradle"));
+        project.files.add(new ProjectFile("gwt/src/GwtLauncher", "gwt/src/" + packageDir + "/client/GwtLauncher.java", true));
+        project.files.add(new ProjectFile("gwt/GdxDefinition", "gwt/src/" + packageDir + "/GdxDefinition.gwt.xml", true));
+        project.files.add(new ProjectFile("gwt/war/index", "gwt/webapp/" + "index.html", true));
+        project.files.add(new ProjectFile("gwt/war/WEB-INF/web.xml", "gwt/webapp/WEB-INF/web.xml", true));
+
+
 		Map<String, String> values = new HashMap<String, String>();
 		values.put("%APP_NAME%", appName);
 		values.put("%PACKAGE%", packageName);

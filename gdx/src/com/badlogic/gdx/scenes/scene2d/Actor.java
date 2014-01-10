@@ -17,7 +17,7 @@
 package com.badlogic.gdx.scenes.scene2d;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -63,16 +63,17 @@ public class Actor {
 	float scaleX = 1, scaleY = 1;
 	float rotation;
 	final Color color = new Color(1, 1, 1, 1);
+	private Object userObject;
 
-	/** Draws the actor. The SpriteBatch is configured to draw in the parent's coordinate system.
-	 * {@link SpriteBatch#draw(com.badlogic.gdx.graphics.g2d.TextureRegion, float, float, float, float, float, float, float, float, float)
-	 * This draw method} is convenient to draw a rotated and scaled TextureRegion. {@link SpriteBatch#begin()} has already been
-	 * called on the SpriteBatch. If {@link SpriteBatch#end()} is called to draw without the SpriteBatch then
-	 * {@link SpriteBatch#begin()} must be called before the method returns.
+	/** Draws the actor. The Batch is configured to draw in the parent's coordinate system.
+	 * {@link Batch#draw(com.badlogic.gdx.graphics.g2d.TextureRegion, float, float, float, float, float, float, float, float, float)
+	 * This draw method} is convenient to draw a rotated and scaled TextureRegion. {@link Batch#begin()} has already been called on
+	 * the Batch. If {@link Batch#end()} is called to draw without the Batch then {@link Batch#begin()} must be called before the
+	 * method returns.
 	 * <p>
 	 * The default implementation does nothing.
 	 * @param parentAlpha Should be multiplied with the actor's alpha, allowing a parent's alpha to affect all children. */
-	public void draw (SpriteBatch batch, float parentAlpha) {
+	public void draw (Batch batch, float parentAlpha) {
 	}
 
 	/** Updates the actor based on time. Typically this is called each frame by {@link Stage#act(float)}.
@@ -305,7 +306,7 @@ public class Actor {
 		return parent != null;
 	}
 
-	/** Returns the parent actor, or null if not in a stage. */
+	/** Returns the parent actor, or null if not in a group. */
 	public Group getParent () {
 		return parent;
 	}
@@ -314,6 +315,11 @@ public class Actor {
 	 * @param parent May be null if the actor has been removed from the parent. */
 	protected void setParent (Group parent) {
 		this.parent = parent;
+	}
+
+	/** Returns true if input events are processed by this actor. */
+	public boolean isTouchable () {
+		return touchable == Touchable.enabled;
 	}
 
 	public Touchable getTouchable () {
@@ -332,6 +338,15 @@ public class Actor {
 	/** If false, the actor will not be drawn and will not receive touch events. Default is true. */
 	public void setVisible (boolean visible) {
 		this.visible = visible;
+	}
+
+	public Object getUserObject () {
+		return userObject;
+	}
+
+	/** Sets an application specific object for convenience. */
+	public void setUserObject (Object userObject) {
+		this.userObject = userObject;
 	}
 
 	public float getX () {
@@ -566,9 +581,9 @@ public class Actor {
 		return clipBegin(x, y, width, height);
 	}
 
-	/** Clips the specified screen aligned rectangle, specified relative to the transform matrix of the stage's SpriteBatch. The
-	 * transform matrix and the stage's camera must not have rotational components. Calling this method must be followed by a call
-	 * to {@link #clipEnd()} if true is returned.
+	/** Clips the specified screen aligned rectangle, specified relative to the transform matrix of the stage's Batch. The transform
+	 * matrix and the stage's camera must not have rotational components. Calling this method must be followed by a call to
+	 * {@link #clipEnd()} if true is returned.
 	 * @return false if the clipping area is zero and no drawing should occur.
 	 * @see ScissorStack */
 	public boolean clipBegin (float x, float y, float width, float height) {

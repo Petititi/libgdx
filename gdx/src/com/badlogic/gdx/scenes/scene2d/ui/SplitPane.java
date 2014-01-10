@@ -17,7 +17,7 @@
 package com.badlogic.gdx.scenes.scene2d.ui;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -73,8 +73,7 @@ public class SplitPane extends WidgetGroup {
 		setStyle(style);
 		setFirstWidget(firstWidget);
 		setSecondWidget(secondWidget);
-		setWidth(getPrefWidth());
-		setHeight(getPrefHeight());
+		setSize(getPrefWidth(), getPrefHeight());
 		initialize();
 	}
 
@@ -164,16 +163,22 @@ public class SplitPane extends WidgetGroup {
 
 	@Override
 	public float getPrefWidth () {
-		float width = firstWidget instanceof Layout ? ((Layout)firstWidget).getPrefWidth() : firstWidget.getWidth();
-		width += secondWidget instanceof Layout ? ((Layout)secondWidget).getPrefWidth() : secondWidget.getWidth();
+		float width = 0;
+		if (firstWidget != null)
+			width = firstWidget instanceof Layout ? ((Layout)firstWidget).getPrefWidth() : firstWidget.getWidth();
+		if (secondWidget != null)
+			width += secondWidget instanceof Layout ? ((Layout)secondWidget).getPrefWidth() : secondWidget.getWidth();
 		if (!vertical) width += style.handle.getMinWidth();
 		return width;
 	}
 
 	@Override
 	public float getPrefHeight () {
-		float height = firstWidget instanceof Layout ? ((Layout)firstWidget).getPrefHeight() : firstWidget.getHeight();
-		height += secondWidget instanceof Layout ? ((Layout)secondWidget).getPrefHeight() : secondWidget.getHeight();
+		float height = 0;
+		if (firstWidget != null)
+			height = firstWidget instanceof Layout ? ((Layout)firstWidget).getPrefHeight() : firstWidget.getHeight();
+		if (secondWidget != null)
+			height += secondWidget instanceof Layout ? ((Layout)secondWidget).getPrefHeight() : secondWidget.getHeight();
 		if (vertical) height += style.handle.getMinHeight();
 		return height;
 	}
@@ -222,7 +227,7 @@ public class SplitPane extends WidgetGroup {
 	}
 
 	@Override
-	public void draw (SpriteBatch batch, float parentAlpha) {
+	public void draw (Batch batch, float parentAlpha) {
 		validate();
 
 		Color color = getColor();
