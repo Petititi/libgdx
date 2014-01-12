@@ -40,7 +40,7 @@ import com.badlogic.gdx.utils.BufferUtils;
  * 
  * @author mzechner, Dave Clayton <contact@redskyforge.com> */
 public class VertexArray implements VertexData {
-	final VertexAttributes attributes;
+	VertexAttributes attributes;
 	final FloatBuffer buffer;
 	final ByteBuffer byteBuffer;
 	boolean isBound = false;
@@ -255,5 +255,10 @@ public class VertexArray implements VertexData {
 	@Override
 	public VertexAttributes getAttributes () {
 		return attributes;
+	}
+
+	@Override
+	public void setAttributes (VertexAttribute[] a) {
+		attributes = new VertexAttributes(a);
 	}
 }

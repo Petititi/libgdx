@@ -56,7 +56,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 public class VertexBufferObjectSubData implements VertexData {
 	final static IntBuffer tmpHandle = BufferUtils.newIntBuffer(1);
 
-	final VertexAttributes attributes;
+	VertexAttributes attributes;
 	final FloatBuffer buffer;
 	final ByteBuffer byteBuffer;
 	int bufferHandle;
@@ -109,6 +109,11 @@ public class VertexBufferObjectSubData implements VertexData {
 	@Override
 	public VertexAttributes getAttributes () {
 		return attributes;
+	}
+
+	@Override
+	public void setAttributes (VertexAttribute[] a) {
+		attributes = new VertexAttributes(a);
 	}
 
 	@Override

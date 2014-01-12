@@ -18,6 +18,7 @@ package com.badlogic.gdx.graphics.glutils;
 
 import java.nio.FloatBuffer;
 
+import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntIntMap;
@@ -35,6 +36,9 @@ public interface VertexData extends Disposable {
 
 	/** @return the {@link VertexAttributes} as specified during construction. */
 	public VertexAttributes getAttributes ();
+
+	/** modify the {@link VertexAttributes}. */
+	public void setAttributes (VertexAttribute[] a);
 
 	/** <p>
 	 * Sets the vertices of this VertexData, discarding the old vertex data. The count must equal the number of floats per vertex
