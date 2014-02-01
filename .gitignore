@@ -33,6 +33,7 @@ ipch/
 *.class
 
 libgdx-*.zip
+libgdx-*.zip.MD5
 
 *.iml
 /.idea/
@@ -47,6 +48,5 @@ libgdx-*.zip
 /extensions/gdx-freetype/libs/
 /extensions/gdx-image/libs/
 
-/demos/pax-britannica/pax-britannica-android/assets/data/gui/Thumbs.db
-/demos/pax-britannica/pax-britannica-android/assets/data/sprites/Thumbs.db
-/libgdx-0.9.9-SNAPSHOT.zip.MD5
+#ensure gdx-setup.jar works properly
+!/extensions/gdx-setup/src/com/badlogic/gdx/setup/resources/gwt/war

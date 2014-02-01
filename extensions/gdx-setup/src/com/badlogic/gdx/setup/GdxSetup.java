@@ -58,7 +58,7 @@ public class GdxSetup {
 
 		// android project
 		project.files.add(new ProjectFile("android/assets/badlogic.jpg", false));
-		project.files.add(new ProjectFile("android/res/values/strings.xml", false));
+		project.files.add(new ProjectFile("android/res/values/strings.xml"));
 		project.files.add(new ProjectFile("android/res/values/styles.xml", false));
 		project.files.add(new ProjectFile("android/res/drawable-hdpi/ic_launcher.png", false));
 		project.files.add(new ProjectFile("android/res/drawable-mdpi/ic_launcher.png", false));
@@ -77,6 +77,10 @@ public class GdxSetup {
         project.files.add(new ProjectFile("gwt/GdxDefinition", "gwt/src/" + packageDir + "/GdxDefinition.gwt.xml", true));
         project.files.add(new ProjectFile("gwt/war/index", "gwt/webapp/" + "index.html", true));
         project.files.add(new ProjectFile("gwt/war/WEB-INF/web.xml", "gwt/webapp/WEB-INF/web.xml", true));
+
+        //ios robovm
+        project.files.add(new ProjectFile("ios/src/IOSLauncher", "ios/src/" + packageDir + "/IOSLauncher.java", true));
+        project.files.add(new ProjectFile("ios/build.gradle"));
 
 
 		Map<String, String> values = new HashMap<String, String>();
