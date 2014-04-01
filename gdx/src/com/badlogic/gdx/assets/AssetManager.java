@@ -358,7 +358,7 @@ public class AssetManager implements Disposable {
 		}
 	}
 
-	/** Updates the AssetManager continuously for the specified number of milliseconds, yeilding the CPU to the loading thread
+	/** Updates the AssetManager continuously for the specified number of milliseconds, yielding the CPU to the loading thread
 	 * between updates. This may block for less time if all loading tasks are complete. This may block for more time if the portion
 	 * of a single task that happens in the GL thread takes a long time.
 	 * @return true if all loading is finished. */
@@ -624,6 +624,10 @@ public class AssetManager implements Disposable {
 		return log;
 	}
 
+	public void setLogger (Logger logger) {
+		log = logger;
+	}
+
 	/** Returns the reference count of an asset.
 	 * @param fileName */
 	public synchronized int getReferenceCount (String fileName) {
@@ -640,7 +644,7 @@ public class AssetManager implements Disposable {
 		assets.get(type).get(fileName).setRefCount(refCount);
 	}
 
-	/** @return a string containg ref count and dependency information for all assets. */
+	/** @return a string containing ref count and dependency information for all assets. */
 	public synchronized String getDiagnostics () {
 		StringBuffer buffer = new StringBuffer();
 		for (String fileName : assetTypes.keys()) {

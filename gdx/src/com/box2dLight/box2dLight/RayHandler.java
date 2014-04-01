@@ -20,7 +20,6 @@ package com.box2dLight.box2dLight;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
@@ -96,23 +95,8 @@ public class RayHandler implements Disposable {
 	public RayHandler (World world, int fboWidth, int fboHeigth) {
 		this.world = world;
 
-		isGL20 = Gdx.graphics.isGL20Available();
-		if (isGL20) {
-
-			lightMap = new LightMap(this, fboWidth, fboHeigth);
-			lightShader = LightShader.createLightShader();
-
-		} else {
-			setGammaCorrection(false);
-			if (Gdx.graphics.getBufferFormat().a == 0) {
-				setShadows(false);
-			} else {
-				box = new Mesh(true, 12, 0, new VertexAttribute(Usage.Position, 2, "vertex_positions"), new VertexAttribute(
-					Usage.ColorPacked, 4, "quad_colors"));
-				setShadowBox();
-			}
-
-		}
+		lightMap = new LightMap(this, fboWidth, fboHeigth);
+		lightShader = LightShader.createLightShader();
 	}
 
 	/** Set combined camera matrix. Matrix will be copied and used for rendering lights, culling. Matrix must be set to work in
@@ -207,29 +191,7 @@ public class RayHandler implements Disposable {
 		Gdx.gl.glEnable(GL20.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 
-		if (isGL20) {
-			renderWithShaders();
-		} else {
-			Gdx.gl10.glMatrixMode(GL10.GL_PROJECTION);
-			Gdx.gl10.glLoadMatrixf(combined.val, 0);
-
-			if (shadows) {
-				alphaChannelClear();
-			}
-
-			for (int i = 0, size = lightList.size; i < size; i++) {
-				lightList.get(i).render();
-			}
-
-			if (shadows) {
-				if (box != null) {
-					Gdx.gl.glBlendFunc(GL10.GL_ONE, GL10.GL_DST_ALPHA);
-					box.render(GL10.GL_TRIANGLE_FAN, 0, 4);
-				}
-			}
-
-			Gdx.gl.glDisable(GL20.GL_BLEND);
-		}
+		renderWithShaders();
 
 	}
 
@@ -282,12 +244,11 @@ public class RayHandler implements Disposable {
 	}
 
 	private void alphaChannelClear () {
-		Gdx.gl10.glClearColor(0f, 0f, 0f, ambientLight.a);
-		Gdx.gl10.glColorMask(false, false, false, true);
-		Gdx.gl10.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		Gdx.gl10.glColorMask(true, true, true, true);
-		Gdx.gl10.glClearColor(0f, 0f, 0f, 0f);
-
+		Gdx.gl20.glClearColor(0f, 0f, 0f, ambientLight.a);
+		Gdx.gl20.glColorMask(false, false, false, true);
+		Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		Gdx.gl20.glColorMask(true, true, true, true);
+		Gdx.gl20.glClearColor(0f, 0f, 0f, 0f);
 	}
 
 	public void dispose () {

@@ -146,6 +146,7 @@ public class JsonValue implements Iterable<JsonValue> {
 	}
 
 	/** @deprecated Use the size property instead. Returns this number of children in the array or object. */
+	@Deprecated
 	public int size () {
 		return size;
 	}
@@ -298,7 +299,7 @@ public class JsonValue implements Iterable<JsonValue> {
 	}
 
 	/** Returns the children of this value as a newly allocated String array.
-	 * @throws IllegalStateException if this not an array. */
+	 * @throws IllegalStateException if this is not an array. */
 	public String[] asStringArray () {
 		if (type != ValueType.array) throw new IllegalStateException("Value is not an array: " + type);
 		String[] array = new String[size];
@@ -307,30 +308,30 @@ public class JsonValue implements Iterable<JsonValue> {
 			String v;
 			switch (type) {
 			case stringValue:
-				v = value.stringValue;
+				v = stringValue;
 				break;
 			case doubleValue:
-				v = Double.toString(value.doubleValue);
+				v = Double.toString(doubleValue);
 				break;
 			case longValue:
-				v = Long.toString(value.longValue);
+				v = Long.toString(longValue);
 				break;
 			case booleanValue:
-				v = value.longValue != 0 ? "true" : "false";
+				v = longValue != 0 ? "true" : "false";
 				break;
 			case nullValue:
 				v = null;
 				break;
 			default:
-				throw new IllegalStateException("Value cannot be converted to string: " + type);
+				throw new IllegalStateException("Value cannot be converted to string: " + value.type);
 			}
-			array[i] = value.asString();
+			array[i] = v;
 		}
 		return array;
 	}
 
 	/** Returns the children of this value as a newly allocated float array.
-	 * @throws IllegalStateException if this not an array. */
+	 * @throws IllegalStateException if this is not an array. */
 	public float[] asFloatArray () {
 		if (type != ValueType.array) throw new IllegalStateException("Value is not an array: " + type);
 		float[] array = new float[size];
@@ -359,7 +360,7 @@ public class JsonValue implements Iterable<JsonValue> {
 	}
 
 	/** Returns the children of this value as a newly allocated double array.
-	 * @throws IllegalStateException if this not an array. */
+	 * @throws IllegalStateException if this is not an array. */
 	public double[] asDoubleArray () {
 		if (type != ValueType.array) throw new IllegalStateException("Value is not an array: " + type);
 		double[] array = new double[size];
@@ -388,7 +389,7 @@ public class JsonValue implements Iterable<JsonValue> {
 	}
 
 	/** Returns the children of this value as a newly allocated long array.
-	 * @throws IllegalStateException if this not an array. */
+	 * @throws IllegalStateException if this is not an array. */
 	public long[] asLongArray () {
 		if (type != ValueType.array) throw new IllegalStateException("Value is not an array: " + type);
 		long[] array = new long[size];
@@ -417,7 +418,7 @@ public class JsonValue implements Iterable<JsonValue> {
 	}
 
 	/** Returns the children of this value as a newly allocated int array.
-	 * @throws IllegalStateException if this not an array. */
+	 * @throws IllegalStateException if this is not an array. */
 	public int[] asIntArray () {
 		if (type != ValueType.array) throw new IllegalStateException("Value is not an array: " + type);
 		int[] array = new int[size];
@@ -446,7 +447,7 @@ public class JsonValue implements Iterable<JsonValue> {
 	}
 
 	/** Returns the children of this value as a newly allocated boolean array.
-	 * @throws IllegalStateException if this not an array. */
+	 * @throws IllegalStateException if this is not an array. */
 	public boolean[] asBooleanArray () {
 		if (type != ValueType.array) throw new IllegalStateException("Value is not an array: " + type);
 		boolean[] array = new boolean[size];
@@ -475,7 +476,7 @@ public class JsonValue implements Iterable<JsonValue> {
 	}
 
 	/** Returns the children of this value as a newly allocated byte array.
-	 * @throws IllegalStateException if this not an array. */
+	 * @throws IllegalStateException if this is not an array. */
 	public byte[] asByteArray () {
 		if (type != ValueType.array) throw new IllegalStateException("Value is not an array: " + type);
 		byte[] array = new byte[size];
@@ -504,7 +505,7 @@ public class JsonValue implements Iterable<JsonValue> {
 	}
 
 	/** Returns the children of this value as a newly allocated short array.
-	 * @throws IllegalStateException if this not an array. */
+	 * @throws IllegalStateException if this is not an array. */
 	public short[] asShortArray () {
 		if (type != ValueType.array) throw new IllegalStateException("Value is not an array: " + type);
 		short[] array = new short[size];
@@ -533,7 +534,7 @@ public class JsonValue implements Iterable<JsonValue> {
 	}
 
 	/** Returns the children of this value as a newly allocated char array.
-	 * @throws IllegalStateException if this not an array. */
+	 * @throws IllegalStateException if this is not an array. */
 	public char[] asCharArray () {
 		if (type != ValueType.array) throw new IllegalStateException("Value is not an array: " + type);
 		char[] array = new char[size];

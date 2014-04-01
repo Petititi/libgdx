@@ -19,7 +19,6 @@
 package com.box2dLight.box2dLight;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Mesh.VertexDataType;
@@ -116,11 +115,6 @@ public class DirectionalLight extends Light {
 		rayHandler.lightRenderedLastFrame++;
 		if (rayHandler.isGL20) {
 			lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_STRIP, 0, vertexNum);
-		} else {
-			lightMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
-			if (soft && !xray) {
-				softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
-			}
 		}
 	}
 

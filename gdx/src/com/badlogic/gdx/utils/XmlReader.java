@@ -198,8 +198,6 @@ public class XmlReader {
 											p++;
 										text(new String(data, s, p - s - 2));
 									} else if (c == '!' && data[s + 1] == '-' && data[s + 2] == '-') {
-										// from http://www.w3.org/TR/REC-xml/#syntax
-										// Comment ::= '<!--' ((Char - '-') | ('-' (Char - '-')))* '-->'
 										p = s + 3;
 										while (data[p] != '-' || data[p + 1] != '-' || data[p + 2] != '>')
 											p++;
@@ -496,9 +494,9 @@ public class XmlReader {
 		}
 
 		/** @throws GdxRuntimeException if the element has no children. */
-		public Element getChild (int i) {
+		public Element getChild (int index) {
 			if (children == null) throw new GdxRuntimeException("Element has no children: " + name);
-			return children.get(i);
+			return children.get(index);
 		}
 
 		public void addChild (Element element) {
