@@ -337,7 +337,7 @@
 	<target name="jars"
 depends="clean,gdx-setup-ui,gdx-setup,gdx-core,gdx-openal,gdx-backend-lwjgl,gdx-backend-headless,gdx-backend-android,gdx-tools,gdx-controllers,gdx-controllers-desktop,gdx-controllers-android,gdx-image,gdx-audio,gdx-freetype,gdx-bullet,gdx-tiled-preprocessor"/>
 
-	<target name="all" depends="jars,docs">
+	<target name="all" depends="jars"><!-- ,docs -->
 		<!-- copy distribution files (licences etc.) -->
 		<copy tofile="${distDir}/README" file="README.md"/>
 		<copy tofile="${distDir}/LICENSE" file="LICENSE"/>

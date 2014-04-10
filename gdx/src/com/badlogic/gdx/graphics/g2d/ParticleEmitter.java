@@ -24,6 +24,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.collision.BoundingBox;
 
 // BOZO - Javadoc.
@@ -71,6 +72,7 @@ public class ParticleEmitter {
 	private int updateFlags;
 	private boolean allowCompletion;
 	private BoundingBox bounds;
+	private final Vector2 centerOfMass = new Vector2(0,0);
 
 	private int emission, emissionDiff, emissionDelta;
 	private int lifeOffset, lifeOffsetDiff;
@@ -258,17 +260,24 @@ public class ParticleEmitter {
 		Particle[] particles = this.particles;
 		boolean[] active = this.active;
 		int activeCount = this.activeCount;
+		centerOfMass.set(0, 0);
 		for (int i = 0, n = active.length; i < n; i++) {
 			if (active[i]) {
 				Particle particle = particles[i];
 				if (updateParticle(particle, delta, deltaMillis))
+				{
+					centerOfMass.x+=particle.getX();
+					centerOfMass.y+=particle.getY();
 					particle.draw(batch);
-				else {
+				}else {
 					active[i] = false;
 					activeCount--;
 				}
 			}
 		}
+		if( activeCount>0 )
+			centerOfMass.scl(1.f/activeCount);
+		
 		this.activeCount = activeCount;
 
 		if (additive) batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -574,6 +583,11 @@ public class ParticleEmitter {
 		}
 		this.x = x;
 		this.y = y;
+	}
+	
+	public Vector2 getCenterOfMass()
+	{
+		return centerOfMass;
 	}
 
 	public void setSprite (Sprite sprite) {
