@@ -12,7 +12,7 @@
 		<ant antfile="build-windows32.xml"/>
 		<ant antfile="build-windows64.xml"/>
 		<ant antfile="build-linux32.xml"/>
-		<ant antfile="build-linux64.xml"/>
+		<ant antfile="build-linux64.xml"/>-
 		<ant antfile="build-android32.xml"/>
 
 	</target>
