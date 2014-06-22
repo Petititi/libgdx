@@ -70,22 +70,22 @@ public class Box2dLight implements Disposable {
 		}
 	}
 
-	public void setLightMesh( float[] segments, float colorF, boolean isGL20 )
+	public void setLightMesh( float[] segments, float colorF )
 	{
-		jniSetLightMesh(pointAddr, segments, colorF, isGL20);
+		jniSetLightMesh(pointAddr, segments, colorF);
 	}
 
-	public void setShadowMesh( float[] segments, float colorF, float softShadowLenght, boolean isGL20 )
+	public void setShadowMesh( float[] segments, float colorF, float softShadowLenght )
 	{
-		jniSetShadowMesh(pointAddr, segments, colorF, softShadowLenght, isGL20);
+		jniSetShadowMesh(pointAddr, segments, colorF, softShadowLenght);
 	}
 
-	private native void jniSetLightMesh( long addr, float[] segments, float colorF, boolean isGL20 );/*
-	((PointLight*) addr)->setLightMesh(segments,colorF,isGL20);
+	private native void jniSetLightMesh( long addr, float[] segments, float colorF );/*
+	((PointLight*) addr)->setLightMesh(segments,colorF);
 	*/
 
-	private native void jniSetShadowMesh( long addr, float[] segments, float colorF, float softShadowLenght, boolean isGL20 );/*
-	((PointLight*) addr)->setShadowMesh(segments,colorF,softShadowLenght,isGL20);
+	private native void jniSetShadowMesh( long addr, float[] segments, float colorF, float softShadowLenght );/*
+	((PointLight*) addr)->setShadowMesh(segments,colorF,softShadowLenght);
 	*/
 	
 	/**

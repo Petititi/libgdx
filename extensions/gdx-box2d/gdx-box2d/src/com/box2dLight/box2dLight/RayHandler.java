@@ -35,7 +35,6 @@ import com.box2dLight.shaders.LightShader;
 
 public class RayHandler implements Disposable {
 
-	boolean isGL20 = false;
 	boolean culling = true;
 	boolean shadows = true;
 	boolean blur = true;

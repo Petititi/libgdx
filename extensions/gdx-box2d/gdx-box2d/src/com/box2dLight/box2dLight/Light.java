@@ -65,10 +65,7 @@ public abstract class Light {
 		rayNum = rays;
 		vertexNum = rays + 1;
 
-		if (rayHandler.isGL20)
-			segments = new float[vertexNum * 8];
-		else
-			segments = new float[vertexNum * 6];
+		segments = new float[vertexNum * 8];
 		ptVals = new float[vertexNum * 3];
 
 		this.direction = directionDegree;

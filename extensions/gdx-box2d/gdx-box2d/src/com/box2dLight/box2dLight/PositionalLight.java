@@ -124,19 +124,10 @@ public abstract class PositionalLight extends Light {
 	}
 
 	void setMesh () {
-		nativeLight.setLightMesh(segments, colorF, rayHandler.isGL20);
-		if (rayHandler.isGL20) {
-			lightMesh.setVertices(segments, 0, (rayNum + 1) * 4);
-		} else {
-			lightMesh.setVertices(segments, 0, (rayNum + 1) * 3);
-		}
+		nativeLight.setLightMesh(segments, colorF);
+		lightMesh.setVertices(segments, 0, (rayNum + 1) * 4);
 
 		if (!soft || xray) return;
-
-		if (!rayHandler.isGL20) {
-			nativeLight.setShadowMesh(segments, colorF, softShadowLenght, rayHandler.isGL20);
-			softShadowMesh.setVertices(segments, 0, segments.length - 3);
-		}
 	}
 
 	@Override
@@ -155,17 +146,10 @@ public abstract class PositionalLight extends Light {
 		start.x = x;
 		start.y = y;
 
-		if (rayHandler.isGL20) {
-			lightMesh = new Mesh(VertexDataType.VertexArray, false, vertexNum, 0, new VertexAttribute(Usage.Position, 2,
-				"vertex_positions"), new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"), new VertexAttribute(Usage.Generic, 1,
-				"s"));
-			softShadowMesh = null;
-		} else {
-			lightMesh = new Mesh(VertexDataType.VertexArray, false, vertexNum, 0, new VertexAttribute(Usage.Position, 2,
-				"vertex_positions"), new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"));
-			softShadowMesh = new Mesh(VertexDataType.VertexArray, false, vertexNum * 2, 0, new VertexAttribute(Usage.Position, 2,
-				"vertex_positions"), new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"));
-		}
+		lightMesh = new Mesh(VertexDataType.VertexArray, false, vertexNum, 0, new VertexAttribute(Usage.Position, 2,
+			"vertex_positions"), new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"), new VertexAttribute(Usage.Generic, 1,
+			"s"));
+		softShadowMesh = null;
 	}
 
 	@Override
